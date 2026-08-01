@@ -37,7 +37,6 @@ output "DP-2" {
 }
 
 spawn-at-startup "xwayland-satellite"
-spawn-at-startup "quickshell"
 spawn-at-startup "wl-paste" "--watch" "cliphist" "store"
 
 prefer-no-csd

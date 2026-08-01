@@ -32,7 +32,6 @@ layout {
 }
 
 spawn-at-startup "xwayland-satellite"
-spawn-at-startup "quickshell"
 spawn-at-startup "wl-paste" "--watch" "cliphist" "store"
 
 prefer-no-csd
