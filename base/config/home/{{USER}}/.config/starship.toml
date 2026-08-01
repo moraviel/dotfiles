@@ -1,0 +1,35 @@
+"$schema" = 'https://starship.rs/config-schema.json'
+
+format = """
+$directory\
+$git_branch\
+$git_status\
+$nodejs\
+$golang\
+$docker_context\
+$line_break\
+$character"""
+
+[directory]
+truncation_length = 3
+style = "bold #89b4fa"
+
+[git_branch]
+symbol = " "
+style = "bold #cba6f7"
+
+[git_status]
+style = "#f38ba8"
+
+[character]
+success_symbol = "[➜](bold #a6e3a1)"
+error_symbol = "[➜](bold #f38ba8)"
+
+[nodejs]
+symbol = " "
+
+[golang]
+symbol = " "
+
+[docker_context]
+symbol = " "
