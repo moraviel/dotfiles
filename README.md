@@ -111,7 +111,17 @@ to a group, etc.
   README](https://github.com/caelestia-dots/shell)) rather than through the
   plain `bind =` lines already in `hyprland.conf`.
 - `greetd` runs `tuigreet` (official `extra` package, no AUR needed), which
-  launches `Hyprland` directly — see `base/config/etc/greetd/config.toml`.
+  launches `start-hyprland` (the crash-recovery/safe-mode wrapper Hyprland
+  ships since 0.53+, not the bare `Hyprland` binary) — see
+  `base/config/etc/greetd/config.toml`.
+- `hyprland.conf` uses the classic key/value `.conf` syntax, which Hyprland
+  has flagged for removal in 0.57 in favor of a new (currently Lua-based)
+  config format — a startup warning about this is expected for now. Not
+  worth migrating yet since the replacement format is still new/evolving;
+  revisit when it stabilizes.
+- Hyprland 0.55 removed the global `dwindle { pseudotile }` option — pseudo
+  tiling is now per-window only, via the `pseudo` dispatcher or a window
+  rule, so `hyprland.conf` doesn't set it globally anymore.
 - Steam/Lutris require the `[multilib]` repo; `make pkgs` enables it
   automatically in `/etc/pacman.conf` when a host's package list requests
   `steam` or `lutris` and it isn't enabled yet.
