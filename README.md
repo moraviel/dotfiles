@@ -18,6 +18,10 @@ the Ubuntu installs they're replacing — see
 procedure. This has to be done before this repo is even cloned; `make` only
 configures a system that's already installed.
 
+Desktop stack: **Hyprland** (Wayland compositor) + **Caelestia Shell**
+(Quickshell-based bar/launcher/notifications, installed from AUR) +
+**greetd** with the **tuigreet** greeter.
+
 ## Layout
 
 ```
@@ -91,11 +95,23 @@ to a group, etc.
 ## Notes
 
 - Monitor layout for `UXL-4JSYDX3` is intentionally left mostly unconfigured
-  in `niri`'s `config.kdl` since the external monitor setup changes by desk;
-  run `niri msg outputs` after docking and adjust the commented-out `output`
-  blocks. `D7JW8FS` ships a real 2-monitor `output` layout as a starting
-  point — update the connector names to match `niri msg outputs` on that
-  machine.
+  in `hyprland.conf` since the external monitor setup changes by desk; run
+  `hyprctl monitors` after docking and adjust the commented-out `monitor =`
+  lines. `D7JW8FS` ships a real 2-monitor layout as a starting point — update
+  the connector names to match `hyprctl monitors` on that machine.
+- Caelestia Shell only has an official (non-`-git`) AUR package because it
+  targets Hyprland specifically — that's why this repo uses Hyprland rather
+  than niri. `caelestia-shell`'s AUR dependencies pull in `quickshell-git`,
+  `caelestia-cli`, `fish`, `power-profiles-daemon` and a handful of other
+  tools automatically; `base/hooks/caelestia-shell.sh` just enables
+  `power-profiles-daemon` and seeds an empty `~/.config/caelestia/shell.json`
+  if one doesn't exist yet. The shell autostarts via `exec-once = qs -c
+  caelestia` in `hyprland.conf`; its keybinds are meant to be wired through
+  Hyprland's global shortcuts (see the [Caelestia
+  README](https://github.com/caelestia-dots/shell)) rather than through the
+  plain `bind =` lines already in `hyprland.conf`.
+- `greetd` runs `tuigreet` (official `extra` package, no AUR needed), which
+  launches `Hyprland` directly — see `base/config/etc/greetd/config.toml`.
 - Steam/Lutris require the `[multilib]` repo; `make pkgs` enables it
   automatically in `/etc/pacman.conf` when a host's package list requests
   `steam` or `lutris` and it isn't enabled yet.
@@ -105,8 +121,8 @@ to a group, etc.
   editing your bootloader config for you.
 - Git configuration (`.gitconfig`), GPG/SSH keys, and commit-signing setup
   are **not** managed here — set those up by hand on each machine.
-- AUR package names (VS Code, etc.) can be renamed or dropped by their
-  maintainers over time; if `make aur` fails on one, check
+- AUR package names (VS Code, Caelestia Shell, etc.) can be renamed or
+  dropped by their maintainers over time; if `make aur` fails on one, check
   `https://aur.archlinux.org` for the current name and update `aur-packages`.
 - Several tools are deliberately installed via their own official installer
   scripts in `base/hooks/always.sh` instead of AUR packages, to keep the AUR

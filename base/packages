@@ -18,11 +18,12 @@ zsh
 starship
 kitty
 ttf-jetbrains-mono-nerd
-niri
-xwayland-satellite
-xdg-desktop-portal-gnome
-quickshell
+hyprland
+xorg-xwayland
+xdg-desktop-portal-hyprland
+grim
 greetd
+greetd-tuigreet
 plymouth
 cava
 wf-recorder

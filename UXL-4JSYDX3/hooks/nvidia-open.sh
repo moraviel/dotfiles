@@ -14,9 +14,11 @@ else
 fi
 
 cat <<'EOF'
-NOTE: for Niri (Wayland) to work well with NVIDIA, also add
+NOTE: for Hyprland (Wayland) to work well with NVIDIA, also add
 `nvidia_drm.modeset=1 nvidia_drm.fbdev=1` to your bootloader's kernel
 command line (systemd-boot: /etc/kernel/cmdline, GRUB:
 GRUB_CMDLINE_LINUX_DEFAULT) and regenerate the bootloader config.
-This is bootloader-specific and not done automatically.
+This is bootloader-specific and not done automatically. The Hyprland env
+vars (LIBVA_DRIVER_NAME, __GLX_VENDOR_LIBRARY_NAME, etc.) are already set
+in UXL-4JSYDX3's hyprland.conf.
 EOF
