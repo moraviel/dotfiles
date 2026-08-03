@@ -9,7 +9,7 @@ matching machine. The host layer is picked up automatically from
 
 | Hostname       | Role                | GPU    | Monitors                          |
 |----------------|---------------------|--------|------------------------------------|
-| `UXL-4JSYDX3`  | Work laptop         | NVIDIA | 1 built-in + 2-3 external (shared desk, varies by office) |
+| `LXKA-4JSYDX3` | Work laptop         | NVIDIA | 1 built-in + 2-3 external (shared desk, varies by office) |
 | `D7JW8FS`      | Personal desktop    | none (integrated) | 2 fixed |
 
 Both machines should be installed with full-disk encryption (LUKS2), same as
@@ -35,7 +35,7 @@ dotfiles/
 │   ├── aur-packages       # AUR packages (via paru), common to all machines
 │   ├── config/            # mirrors /, deployed first
 │   └── hooks/             # <package-name>.sh, run after that package installs
-├── UXL-4JSYDX3/
+├── LXKA-4JSYDX3/
 │   ├── packages
 │   ├── aur-packages
 │   ├── config/            # overlaid on top of base/config, same file wins
@@ -94,7 +94,7 @@ to a group, etc.
 
 ## Notes
 
-- Monitor layout for `UXL-4JSYDX3` is intentionally left mostly unconfigured
+- Monitor layout for `LXKA-4JSYDX3` is intentionally left mostly unconfigured
   in `hyprland.conf` since the external monitor setup changes by desk; run
   `hyprctl monitors` after docking and adjust the commented-out `monitor =`
   lines. `D7JW8FS` ships a real 2-monitor layout as a starting point — update

@@ -45,7 +45,7 @@ arch-chroot /mnt
 ```
 
 From here on you're inside the chroot. Set locale/timezone/hostname as usual
-(`/etc/hostname` must be `UXL-4JSYDX3` or `D7JW8FS` to match this repo's
+(`/etc/hostname` must be `LXKA-4JSYDX3` or `D7JW8FS` to match this repo's
 layers), then continue below.
 
 ## 4. mkinitcpio: add the `encrypt` hook
@@ -64,7 +64,7 @@ right after `udev` and keep `encrypt` before `filesystems`:
 HOOKS=(base udev plymouth autodetect modconf kms keyboard keymap consolefont block encrypt filesystems fsck)
 ```
 
-`base/hooks/plymouth.sh` and `UXL-4JSYDX3/hooks/nvidia-open.sh` in this repo
+`base/hooks/plymouth.sh` and `LXKA-4JSYDX3/hooks/nvidia-open.sh` in this repo
 only *append* to whatever `HOOKS=(...)`/`MODULES=(...)` already exist — they
 won't reorder `encrypt` for you, so get this line right by hand first.
 
