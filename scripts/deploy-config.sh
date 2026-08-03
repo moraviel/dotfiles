@@ -26,12 +26,15 @@ backup_target() {
     local target="$1"
     [ -e "$target" ] || return 0
     local backup_path="$SNAPSHOT_DIR$target"
+    # backup_path always lives under $HOME, regardless of whether the target
+    # itself needs sudo — so the directory is always created as the normal
+    # user. Only the actual copy (reading a possibly root-owned source) goes
+    # through sudo, and the resulting file is chowned back to the user.
+    mkdir -p "$(dirname "$backup_path")"
     if needs_sudo "${target#/}"; then
-        sudo mkdir -p "$(dirname "$backup_path")"
         sudo cp -a "$target" "$backup_path"
         sudo chown "$USER:$USER" "$backup_path"
     else
-        mkdir -p "$(dirname "$backup_path")"
         cp -a "$target" "$backup_path"
     fi
     SNAPSHOT_USED=1
