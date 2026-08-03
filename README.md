@@ -105,8 +105,8 @@ to a group, etc.
   editing your bootloader config for you.
 - Git configuration (`.gitconfig`), GPG/SSH keys, and commit-signing setup
   are **not** managed here — set those up by hand on each machine.
-- AUR package names (VS Code, Bitwarden, etc.) can be renamed or dropped by
-  their maintainers over time; if `make aur` fails on one, check
+- AUR package names (VS Code, etc.) can be renamed or dropped by their
+  maintainers over time; if `make aur` fails on one, check
   `https://aur.archlinux.org` for the current name and update `aur-packages`.
 - Several tools are deliberately installed via their own official installer
   scripts in `base/hooks/always.sh` instead of AUR packages, to keep the AUR
@@ -120,3 +120,7 @@ to a group, etc.
   - **Claude Code** — `curl -fsSL https://claude.ai/install.sh | bash`
   - **Opencode** — `curl -fsSL https://opencode.ai/install | bash`
   - **Codex** — `curl -fsSL https://chatgpt.com/codex/install.sh | sh`
+- **Bitwarden** is installed from Flathub, not AUR: `flatpak` is in
+  `base/packages`, and `base/hooks/flatpak.sh` adds the Flathub remote
+  (`flatpak remote-add --if-not-exists flathub ...`) and then installs
+  `com.bitwarden.desktop` system-wide.
