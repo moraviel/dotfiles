@@ -105,14 +105,18 @@ to a group, etc.
   editing your bootloader config for you.
 - Git configuration (`.gitconfig`), GPG/SSH keys, and commit-signing setup
   are **not** managed here — set those up by hand on each machine.
-- AUR package names (Claude Code, Opencode, VS Code, Bitwarden, etc.) can be
-  renamed or dropped by their maintainers over time; if `make aur` fails on
-  one, check `https://aur.archlinux.org` for the current name and update
-  `aur-packages`.
-- JetBrains Toolbox is deliberately **not** an AUR package — to keep the AUR
-  footprint small, `base/hooks/always.sh` downloads the official tarball
-  directly from JetBrains (resolved via their releases API) into
-  `~/.local/share/JetBrains/toolbox-app`, symlinks it onto `$PATH` at
-  `~/.local/bin/jetbrains-toolbox`, and drops a `.desktop` entry. Launch it
-  once after `make hooks` — first run does its own IDE-manager setup and
-  autostart registration.
+- AUR package names (VS Code, Bitwarden, etc.) can be renamed or dropped by
+  their maintainers over time; if `make aur` fails on one, check
+  `https://aur.archlinux.org` for the current name and update `aur-packages`.
+- Several tools are deliberately installed via their own official installer
+  scripts in `base/hooks/always.sh` instead of AUR packages, to keep the AUR
+  footprint small — each is idempotent (skipped if already on `$PATH`):
+  - **JetBrains Toolbox** — tarball downloaded directly from JetBrains
+    (resolved via their releases API) into
+    `~/.local/share/JetBrains/toolbox-app`, symlinked onto `$PATH` at
+    `~/.local/bin/jetbrains-toolbox`, with a `.desktop` entry dropped in.
+    Launch it once after `make hooks` — first run does its own IDE-manager
+    setup and autostart registration.
+  - **Claude Code** — `curl -fsSL https://claude.ai/install.sh | bash`
+  - **Opencode** — `curl -fsSL https://opencode.ai/install | bash`
+  - **Codex** — `curl -fsSL https://chatgpt.com/codex/install.sh | sh`

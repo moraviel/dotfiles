@@ -43,3 +43,29 @@ else
         echo "Launch it once (jetbrains-toolbox) to finish first-run setup (it manages its own autostart from there)."
     fi
 fi
+
+# Claude Code, Opencode and Codex are installed via their own official
+# installer scripts instead of AUR packages, to keep the AUR footprint down.
+# All three install to $HOME/.local/bin, so make sure that's on PATH
+# (it is, via base/config/home/{{USER}}/.zshrc).
+
+if command -v claude >/dev/null 2>&1; then
+    echo "Claude Code already installed: $(command -v claude)"
+else
+    echo "Installing Claude Code"
+    curl -fsSL https://claude.ai/install.sh | bash
+fi
+
+if command -v opencode >/dev/null 2>&1; then
+    echo "Opencode already installed: $(command -v opencode)"
+else
+    echo "Installing Opencode"
+    curl -fsSL https://opencode.ai/install | bash
+fi
+
+if command -v codex >/dev/null 2>&1; then
+    echo "Codex already installed: $(command -v codex)"
+else
+    echo "Installing Codex"
+    curl -fsSL https://chatgpt.com/codex/install.sh | sh
+fi
