@@ -8,10 +8,34 @@
 # If a directory contains a `.clean` marker file, the corresponding target
 # directory is emptied before anything is copied into it.
 # `.gitkeep` and `.clean` themselves are never copied.
+#
+# Before overwriting any file that already exists, its current content is
+# snapshotted under $BACKUP_ROOT/<timestamp>/<same absolute path> so a run
+# can be undone with `make rollback` / scripts/rollback-config.sh.
 set -euo pipefail
 
 HOST="${HOST:-$(cat /etc/hostname)}"
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+BACKUP_ROOT="${BACKUP_ROOT:-$HOME/.local/share/dotfiles-backups}"
+SNAPSHOT_DIR="$BACKUP_ROOT/$(date +%Y%m%dT%H%M%S)"
+SNAPSHOT_USED=0
+
+# Copy $1 (an existing target file about to be overwritten) into this run's
+# snapshot dir, mirroring its absolute path. No-ops if $1 doesn't exist yet.
+backup_target() {
+    local target="$1"
+    [ -e "$target" ] || return 0
+    local backup_path="$SNAPSHOT_DIR$target"
+    if needs_sudo "${target#/}"; then
+        sudo mkdir -p "$(dirname "$backup_path")"
+        sudo cp -a "$target" "$backup_path"
+        sudo chown "$USER:$USER" "$backup_path"
+    else
+        mkdir -p "$(dirname "$backup_path")"
+        cp -a "$target" "$backup_path"
+    fi
+    SNAPSHOT_USED=1
+}
 
 # Map a path relative to <layer>/config/ to its absolute destination on disk.
 target_path() {
@@ -49,11 +73,13 @@ deploy_layer() {
         [ "$rel" = "$dir" ] && rel=""
         target="$(target_path "$rel")"
         [ -d "$target" ] || continue
+        echo "==> [clean] backing up and emptying ${target}"
+        while IFS= read -r -d '' existing; do
+            backup_target "$existing"
+        done < <(find "$target" -mindepth 1 -type f -print0)
         if needs_sudo "$rel"; then
-            echo "==> [clean] sudo emptying ${target}"
             sudo find "$target" -mindepth 1 -maxdepth 1 -exec rm -rf {} +
         else
-            echo "==> [clean] emptying ${target}"
             find "$target" -mindepth 1 -maxdepth 1 -exec rm -rf {} +
         fi
     done < <(find "$config_dir" -type f -name '.clean' -print0)
@@ -67,6 +93,7 @@ deploy_layer() {
 
         rel="${src_file#"$config_dir"/}"
         target="$(target_path "$rel")"
+        backup_target "$target"
 
         if needs_sudo "$rel"; then
             echo "==> [sudo] ${rel} -> ${target}"
@@ -88,6 +115,11 @@ if [ -d "$REPO_ROOT/$HOST" ]; then
     deploy_layer "$REPO_ROOT/$HOST"
 else
     echo "--- No host layer for $HOST, skipping ---"
+fi
+
+if [ "$SNAPSHOT_USED" = 1 ]; then
+    echo "Backed up previous files to $SNAPSHOT_DIR"
+    echo "Undo this run with: make rollback"
 fi
 
 echo "Done."

@@ -48,25 +48,39 @@ From here on you're inside the chroot. Set locale/timezone/hostname as usual
 (`/etc/hostname` must be `LXKA-4JSYDX3` or `D7JW8FS` to match this repo's
 layers), then continue below.
 
-## 4. mkinitcpio: add the `encrypt` hook
+## 4. mkinitcpio: add the encrypt hook
 
-Edit `/etc/mkinitcpio.conf` and make sure `encrypt` appears **after** `block`
-and **before** `filesystems`:
+Current Arch installs ship `/etc/mkinitcpio.conf` with the **systemd-based**
+hooks (`systemd` instead of `udev`, `sd-vconsole` instead of
+`keymap`/`consolefont`) — check what you actually have with `grep ^HOOKS
+/etc/mkinitcpio.conf` before editing, since the two styles use different
+hook names and kernel cmdline options.
+
+**systemd hooks (current default)** — use `sd-encrypt`, after `block` and
+before `filesystems`:
 
 ```
-HOOKS=(base udev autodetect modconf kms keyboard keymap consolefont block encrypt filesystems fsck)
+HOOKS=(base systemd autodetect microcode modconf kms keyboard sd-vconsole block sd-encrypt filesystems fsck)
 ```
 
-If you also want the Plymouth splash on the unlock prompt, put `plymouth`
-right after `udev` and keep `encrypt` before `filesystems`:
+Plymouth goes right after `systemd`:
+
+```
+HOOKS=(base systemd plymouth autodetect microcode modconf kms keyboard sd-vconsole block sd-encrypt filesystems fsck)
+```
+
+**Legacy udev hooks** (older installs) — use `encrypt` instead, and
+`udev`/`keymap`/`consolefont` instead of `systemd`/`sd-vconsole`:
 
 ```
 HOOKS=(base udev plymouth autodetect modconf kms keyboard keymap consolefont block encrypt filesystems fsck)
 ```
 
 `base/hooks/plymouth.sh` and `LXKA-4JSYDX3/hooks/nvidia-open.sh` in this repo
-only *append* to whatever `HOOKS=(...)`/`MODULES=(...)` already exist — they
-won't reorder `encrypt` for you, so get this line right by hand first.
+only *append* to whatever `HOOKS=(...)`/`MODULES=(...)` already exist (the
+plymouth hook inserts right after whichever of `systemd`/`udev` it finds) —
+neither one adds `sd-encrypt`/`encrypt` for you, so get that part right by
+hand first.
 
 Regenerate the initramfs:
 
@@ -92,8 +106,13 @@ Create `/boot/loader/entries/arch.conf`:
 title   Arch Linux
 linux   /vmlinuz-linux
 initrd  /initramfs-linux.img
-options cryptdevice=UUID=<uuid-from-above>:cryptroot root=/dev/mapper/cryptroot rw
+options rd.luks.name=<uuid-from-above>=cryptroot root=/dev/mapper/cryptroot rw
 ```
+
+(That's the option for the **systemd** hooks/`sd-encrypt` setup above. If
+you went the legacy **udev**/`encrypt` route instead, use
+`cryptdevice=UUID=<uuid-from-above>:cryptroot root=/dev/mapper/cryptroot rw`
+instead.)
 
 And `/boot/loader/loader.conf`:
 

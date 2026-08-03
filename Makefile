@@ -1,6 +1,6 @@
 HOST := $(shell cat /etc/hostname)
 
-.PHONY: all deps pkgs aur cfg hooks
+.PHONY: all deps pkgs aur cfg hooks rollback rollback-list
 
 all: deps pkgs aur cfg hooks
 
@@ -40,3 +40,9 @@ cfg:
 hooks:
 	@echo "--- Running hooks for $(HOST) ---"
 	@HOST=$(HOST) bash scripts/run-hooks.sh
+
+rollback:
+	@bash scripts/rollback-config.sh $(SNAPSHOT)
+
+rollback-list:
+	@bash scripts/rollback-config.sh list

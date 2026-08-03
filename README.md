@@ -82,6 +82,36 @@ dry run against a different host layer) with `make cfg HOST=OTHER-HOST`.
 - `base/config` is deployed first, then `<hostname>/config` — a file present
   in both layers is simply overwritten by the host-specific version (there is
   no merging).
+- Every file about to be overwritten (or deleted by a `.clean` wipe) is
+  backed up first — see [Rolling back](#rolling-back-make-cfg) below.
+
+### Rolling back `make cfg`
+
+Before `make cfg` overwrites or deletes an existing file, it snapshots the
+current copy to `~/.local/share/dotfiles-backups/<timestamp>/<same absolute
+path>`. If a change turns out to be broken:
+
+```sh
+make rollback-list      # show available snapshots, newest first
+make rollback           # restore the most recent snapshot
+make rollback SNAPSHOT=20260803T202439   # restore a specific one
+```
+
+This only undoes files `make cfg` touched — it doesn't uninstall packages or
+undo what hooks did to system state (`mkinitcpio.conf` changes from
+`plymouth.sh`/`nvidia-open.sh` have their own `.bak` file alongside the
+original; systemd services enabled by hooks stay enabled). The intended
+workflow for a bad change is:
+
+```sh
+make rollback        # 1. undo the config changes on this machine
+git pull              # 2. (or checkout an earlier commit) to get the fix
+make                  # 3. reapply
+```
+
+Snapshots accumulate under `~/.local/share/dotfiles-backups/` and are never
+deleted automatically — prune old ones by hand once you're confident you
+won't need them.
 
 ### Hooks (`make hooks`)
 
