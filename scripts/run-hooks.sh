@@ -2,6 +2,9 @@
 # For every package listed in base/packages, base/aur-packages, $HOST/packages
 # and $HOST/aur-packages, run base/hooks/<pkg>.sh and $HOST/hooks/<pkg>.sh if
 # they exist (in that order). Missing hooks are silently skipped.
+# base/hooks/always.sh and $HOST/hooks/always.sh, if present, run once at the
+# end regardless of package lists — for machine setup that isn't tied to a
+# specific package (e.g. account full name).
 set -euo pipefail
 
 HOST="${HOST:-$(cat /etc/hostname)}"
@@ -25,6 +28,13 @@ for pkg in "${packages[@]}"; do
             bash "$hook"
         fi
     done
+done
+
+for hook in "$REPO_ROOT/base/hooks/always.sh" "$REPO_ROOT/$HOST/hooks/always.sh"; do
+    if [ -f "$hook" ]; then
+        echo "==> running hook: ${hook#"$REPO_ROOT"/}"
+        bash "$hook"
+    fi
 done
 
 echo "Done."

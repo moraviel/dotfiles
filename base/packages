@@ -31,6 +31,7 @@ wl-clipboard
 cliphist
 qt6-multimedia
 openssh
+cryptsetup
 networkmanager
 libsecret
 gnome-keyring

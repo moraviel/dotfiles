@@ -12,6 +12,12 @@ matching machine. The host layer is picked up automatically from
 | `UXL-4JSYDX3`  | Work laptop         | NVIDIA | 1 built-in + 2-3 external (shared desk, varies by office) |
 | `D7JW8FS`      | Personal desktop    | none (integrated) | 2 fixed |
 
+Both machines should be installed with full-disk encryption (LUKS2), same as
+the Ubuntu installs they're replacing — see
+[docs/disk-encryption.md](docs/disk-encryption.md) for the install-time
+procedure. This has to be done before this repo is even cloned; `make` only
+configures a system that's already installed.
+
 ## Layout
 
 ```
@@ -99,7 +105,14 @@ to a group, etc.
   editing your bootloader config for you.
 - Git configuration (`.gitconfig`), GPG/SSH keys, and commit-signing setup
   are **not** managed here — set those up by hand on each machine.
-- AUR package names (Claude Code, Codex, Opencode, JetBrains Toolbox, VS
-  Code, Bitwarden, etc.) can be renamed or dropped by their maintainers over
-  time; if `make aur` fails on one, check `https://aur.archlinux.org` for the
-  current name and update `aur-packages`.
+- AUR package names (Claude Code, Opencode, VS Code, Bitwarden, etc.) can be
+  renamed or dropped by their maintainers over time; if `make aur` fails on
+  one, check `https://aur.archlinux.org` for the current name and update
+  `aur-packages`.
+- JetBrains Toolbox is deliberately **not** an AUR package — to keep the AUR
+  footprint small, `base/hooks/always.sh` downloads the official tarball
+  directly from JetBrains (resolved via their releases API) into
+  `~/.local/share/JetBrains/toolbox-app`, symlinks it onto `$PATH` at
+  `~/.local/bin/jetbrains-toolbox`, and drops a `.desktop` entry. Launch it
+  once after `make hooks` — first run does its own IDE-manager setup and
+  autostart registration.
