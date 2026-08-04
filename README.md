@@ -18,9 +18,10 @@ the Ubuntu installs they're replacing — see
 procedure. This has to be done before this repo is even cloned; `make` only
 configures a system that's already installed.
 
-Desktop stack: **Hyprland** (Wayland compositor) + **Quickshell** (bar/widgets,
-written from scratch — no pre-built shell) + **greetd** with the **tuigreet**
-greeter.
+Desktop stack: **Hyprland** (Wayland compositor) + **Waybar** (bar) +
+**Mako** (notifications) + **Walker** (app launcher) + **hyprlock**/**hypridle**
+(lock/idle) + **hyprpaper** (wallpaper) + **greetd** with the **tuigreet**
+greeter. Theme is Catppuccin Mocha throughout.
 
 ## Layout
 
@@ -29,7 +30,11 @@ dotfiles/
 ├── Makefile
 ├── scripts/
 │   ├── deploy-config.sh   # implements `make cfg`
+│   ├── rollback-config.sh # implements `make rollback`
 │   └── run-hooks.sh       # implements `make hooks`
+├── wallpapers/            # vendored copy of github.com/teowelton/Wallpapers
+│                          # (whole repo, ~677MB — copied to ~/.wallpapers/
+│                          # by base/hooks/hyprpaper.sh)
 ├── base/
 │   ├── packages           # pacman packages, common to all machines
 │   ├── aur-packages       # AUR packages (via paru), common to all machines
@@ -129,58 +134,44 @@ to a group, etc.
   `hyprctl monitors` after docking and adjust the commented-out `monitor =`
   lines. `D7JW8FS` ships a real 2-monitor layout as a starting point — update
   the connector names to match `hyprctl monitors` on that machine.
-- `quickshell` is the official `extra` package (no AUR needed) — there's
-  deliberately no pre-built shell (Caelestia/DMS/etc.) on top of it.
-  `base/config/home/{{USER}}/.config/quickshell/` is a small hand-written bar,
-  not a framework:
-  - `shell.qml` — root; uses `Variants`/`Quickshell.screens` to spawn one
-    `Bar` per monitor.
-  - `Bar.qml` — the `PanelWindow` (top strip, 34px): distro logo + workspaces
-    + active window on the left, clock centered, tray/media/notifications/
-    clipboard/bluetooth/network/volume/battery/power on the right.
-    Catppuccin Mocha colors via the `Colors.qml` singleton (`pragma
-    Singleton`, no `qmldir` needed — Quickshell auto-registers
-    uppercase-named sibling `.qml` files as types in the config directory).
-    Type names are chosen to avoid shadowing built-in singletons (e.g.
-    `BatteryWidget.qml` not `Battery.qml`, `NetworkWidget.qml` not
-    `Network.qml`) — QML doesn't allow redeclaring an existing type/property
-    name.
-  - `Workspaces.qml` / `ActiveWindow.qml` — `Quickshell.Hyprland` IPC and the
-    compositor-agnostic `Quickshell.Wayland.ToplevelManager`.
-  - `Media.qml` — `Quickshell.Services.Mpris`; shows the first playing (or
-    otherwise first available) player, click to play/pause.
-  - `Notifications.qml` — `Quickshell.Services.Notifications`; this repo's
-    shell *is* the notification daemon (nothing else provides
-    `org.freedesktop.Notifications`). Currently just an unread-count bell —
-    clicking dismisses everything tracked. No popup/history view yet, that's
-    a bigger feature to add later.
-  - `Clipboard.qml` — runs `cliphist list | fuzzel --dmenu | cliphist decode
-    | wl-copy` on click (cliphist itself is already fed by the
-    `wl-paste --watch cliphist store` in `hyprland.conf`'s `exec-once`).
-  - `BluetoothWidget.qml` — `Quickshell.Bluetooth` (BlueZ); needs
-    `bluez`/`bluez-utils` (in `base/packages`, service enabled by
-    `base/hooks/bluez.sh`).
-  - `NetworkWidget.qml` — `Quickshell.Networking` (NetworkManager); shows the
-    connected network's name, with a wifi/wired/none icon.
-  - `Volume.qml` / `BatteryWidget.qml` — `Quickshell.Services.Pipewire` /
-    `.UPower`; needs `pipewire`/`wireplumber`/`upower` (in `base/packages`,
-    enabled by `base/hooks/pipewire.sh`). `BatteryWidget` hides itself
-    (`isLaptopBattery` check) on `D7JW8FS`, which has no battery.
-  - `TrayWidget.qml` — `Quickshell.Services.SystemTray`.
-  - `PowerMenu.qml` / `PowerMenuButton.qml` — a `PopupWindow` with
-    Lock/Log out/Reboot/Shutdown, opened from the ⏻ button. Lock runs
-    `hyprlock` (in `base/packages`); log out uses `Hyprland.dispatch("exit")`.
-  - `assets/arch-logo.svg` — Arch Linux's own "Crystal" icon, used as-is in
-    the bar's top-left corner.
-  - Icons are plain emoji (🔋🔇🔊⚡🔔📋🔵📶 etc.), not Nerd Font glyphs —
-    renders correctly with any font, no icon-codepoint guessing required.
-  `hyprland.conf` autostarts it via `exec-once = qs`, which loads
-  `~/.config/quickshell/shell.qml` by default (no `-c`/`-p` flags needed).
-  This is a hand-rolled starting point, not a finished product — extend it
-  as you go; the Quickshell API calls above were checked against the
-  official docs but not run against a live compositor from this sandbox, so
-  treat first boot as the real test. See
-  [quickshell.org/docs](https://quickshell.org/docs/) for writing more.
+- **Waybar** (`base/config/home/{{USER}}/.config/waybar/config.jsonc` +
+  `style.css`) — top bar, Catppuccin Mocha styled: Arch logo (Nerd Font glyph
+  ``, verified against the canonical
+  [nerd-fonts glyphnames.json](https://github.com/ryanoasis/nerd-fonts/blob/master/glyphnames.json)
+  rather than guessed) + workspaces (dot style) + active window on the left,
+  clock centered, tray/mpris/notification-toggle/bluetooth/network/volume/
+  battery on the right. `mpris` needs `playerctl`; `bluetooth`'s click opens
+  `blueman-manager`; `network`'s click opens `nm-connection-editor`;
+  `pulseaudio`'s click opens `pavucontrol` — all four packages are in
+  `base/packages` alongside `waybar` itself.
+- **Mako** (`base/config/home/{{USER}}/.config/mako/config`) — notification
+  daemon, Catppuccin Mocha colors, red border + no timeout on
+  `[urgency=critical]`. Waybar's bell icon toggles do-not-disturb via
+  `makoctl mode -t do-not-disturb`, it doesn't show a history/popover.
+- **Walker** (AUR `walker-bin`, maintained by its own upstream author) — app
+  launcher bound to `$mod+D`. Backed by `elephant` (auto-installed as a
+  dependency) with only a few providers installed on purpose instead of
+  `elephant-all-bin` (which pulls ~20 packages including 1Password/ProtonPass
+  providers nobody here uses): `elephant-desktopapplications-bin` (app
+  launching), `-runner-bin`, `-calc-bin`, `-files-bin`. Add more
+  `elephant-<provider>-bin` packages later if you want clipboard/websearch/
+  bluetooth providers inside the launcher too — see `providers.default` in
+  `base/config/home/{{USER}}/.config/walker/config.toml`, which only lists
+  what's actually installed. Theme is a 5-color-variable override
+  (`themes/catppuccin-mocha/style.css`) on top of Walker's bundled `default`
+  theme layout — no custom XML layout needed.
+- **hyprpaper** sets the wallpaper: `base/config/home/{{USER}}/.config/hypr/hyprpaper.conf`
+  points at
+  `~/.wallpapers/catppuccin/mocha/kurzgesagt/Cloudy_Quasar_1-Catppuccin_Mocha.png`.
+  That path only exists after `base/hooks/hyprpaper.sh` copies the
+  `wallpapers/` directory (vendored directly in this repo, not a submodule —
+  it's ~677MB, so cloning this repo takes a while) to `~/.wallpapers/` (first
+  run only — it skips the copy if `~/.wallpapers` already exists, so it won't
+  stomp on wallpapers you add there yourself).
+- **hyprlock** (`hyprlock.conf`) shows the same wallpaper blurred, a clock,
+  and a password field; bound to `$mod+L`. **hypridle** (`hypridle.conf`)
+  locks after 5 minutes idle and turns the display off 30 seconds after that
+  — both configs are in `base/config/home/{{USER}}/.config/hypr/`.
 - `greetd` runs `tuigreet` (official `extra` package, no AUR needed), which
   launches `start-hyprland` (the crash-recovery/safe-mode wrapper Hyprland
   ships since 0.53+, not the bare `Hyprland` binary) — see
@@ -200,6 +191,14 @@ to a group, etc.
   change (`splash` / `nvidia_drm.modeset=1`) that's bootloader-specific
   (GRUB vs systemd-boot) — the relevant hooks print what to add instead of
   editing your bootloader config for you.
+- `base/hooks/xdg-user-dirs.sh` creates `~/Desktop`, `Documents`, `Downloads`,
+  `Music`, `Pictures`, `Public`, `Templates`, `Videos` and writes
+  `~/.config/user-dirs.dirs` pointing at them directly — this bypasses
+  `xdg-user-dirs-update`'s own locale-based translation (which would
+  otherwise create localized names like `Рабочий стол` instead of `Desktop`
+  depending on system locale), since these exact English names were asked
+  for explicitly. `xdg-user-dirs` (the package) is still installed for the
+  `xdg-user-dir` CLI tool other apps expect to find.
 - Git configuration (`.gitconfig`), GPG/SSH keys, and commit-signing setup
   are **not** managed here — set those up by hand on each machine.
 - AUR package names (VS Code, plymouth themes, etc.) can be renamed or
