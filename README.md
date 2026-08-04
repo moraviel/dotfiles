@@ -18,8 +18,8 @@ the Ubuntu installs they're replacing — see
 procedure. This has to be done before this repo is even cloned; `make` only
 configures a system that's already installed.
 
-Desktop stack: **Hyprland** (Wayland compositor) + **Waybar** (bar) +
-**Mako** (notifications) + **Walker** (app launcher) + **hyprlock**/**hypridle**
+Desktop stack: **Hyprland** (Wayland compositor) + **Quickshell** (bar/widgets,
+written from scratch — no pre-built shell) + **hyprlock**/**hypridle**
 (lock/idle) + **hyprpaper** (wallpaper) + **greetd** with the **tuigreet**
 greeter. Theme is Catppuccin Mocha throughout.
 
@@ -130,39 +130,81 @@ to a group, etc.
 ## Notes
 
 - Monitor layout for `LXKA-4JSYDX3` is intentionally left mostly unconfigured
-  in `hyprland.conf` since the external monitor setup changes by desk; run
-  `hyprctl monitors` after docking and adjust the commented-out `monitor =`
-  lines. `D7JW8FS` ships a real 2-monitor layout as a starting point — update
-  the connector names to match `hyprctl monitors` on that machine.
-- **Waybar** (`base/config/home/{{USER}}/.config/waybar/config.jsonc` +
-  `style.css`) — top bar, Catppuccin Mocha styled: Arch logo (Nerd Font glyph
-  ``, verified against the canonical
-  [nerd-fonts glyphnames.json](https://github.com/ryanoasis/nerd-fonts/blob/master/glyphnames.json)
-  rather than guessed) + workspaces (dot style) + active window on the left,
-  clock centered, tray/mpris/notification-toggle/bluetooth/network/volume/
-  battery on the right. `mpris` needs `playerctl`; `bluetooth`'s click opens
-  `blueman-manager`; `network`'s click opens `nm-connection-editor`;
-  `pulseaudio`'s click opens `pavucontrol` — all four packages are in
-  `base/packages` alongside `waybar` itself.
-- **Mako** (`base/config/home/{{USER}}/.config/mako/config`) — notification
-  daemon, Catppuccin Mocha colors, red border + no timeout on
-  `[urgency=critical]`. Waybar's bell icon toggles do-not-disturb via
-  `makoctl mode -t do-not-disturb`, it doesn't show a history/popover.
-- **Walker** (AUR `walker-bin`, maintained by its own upstream author) — app
-  launcher bound to `$mod+D`. Backed by `elephant` (auto-installed as a
-  dependency) with only a few providers installed on purpose instead of
-  `elephant-all-bin` (which pulls ~20 packages including 1Password/ProtonPass
-  providers nobody here uses): `elephant-desktopapplications-bin` (app
-  launching), `-runner-bin`, `-calc-bin`, `-files-bin`. Add more
-  `elephant-<provider>-bin` packages later if you want clipboard/websearch/
-  bluetooth providers inside the launcher too — see `providers.default` in
-  `base/config/home/{{USER}}/.config/walker/config.toml`, which only lists
-  what's actually installed. Theme is a 5-color-variable override
-  (`themes/catppuccin-mocha/style.css`) on top of Walker's bundled `default`
-  theme layout — no custom XML layout needed. `elephant-bin` ships a bare
-  binary with no systemd service or autostart of its own — Walker just shows
-  "Waiting for elephant" forever if nothing starts it, so `hyprland.conf` has
-  `exec-once = elephant` right before the `hyprpaper` line.
+  in `hyprland.lua` since the external monitor setup changes by desk; run
+  `hyprctl monitors` after docking and adjust the commented-out
+  `hl.monitor({...})` calls. `D7JW8FS` ships a real 2-monitor layout as a
+  starting point — update the connector names to match `hyprctl monitors` on
+  that machine.
+- `hyprland.conf` was migrated to `hyprland.lua` — Hyprland deprecated the
+  classic key/value `.conf` syntax (hyprlang) in favor of Lua as of 0.55, and
+  will drop `.conf` support entirely in 0.57. The `hl.*` API used here (
+  `hl.config({...})`, `hl.monitor({...})`, `hl.bind(...)`,
+  `hl.on("hyprland.start", ...)`, `hl.dsp.*` dispatchers) was checked against
+  the [official wiki](https://wiki.hypr.land/Configuring/Start/) and
+  [Hyprland's own example config](https://github.com/hyprwm/Hyprland/blob/main/example/hyprland.lua),
+  and every `.lua` file in this repo was syntax-checked with a real Lua
+  parser (not just eyeballed) before being committed — but none of it has run
+  against a live Hyprland session from this sandbox, so treat the first
+  reload/reboot after pulling this as the real test. One renamed option to
+  know about: touchpad `tap-to-click` became `tap_to_click` (Lua table keys
+  can't contain hyphens).
+- Hyprland 0.55 also removed the global `dwindle` `pseudotile` option —
+  pseudo tiling is now per-window only, via the `pseudo` dispatcher or a
+  window rule, so `hyprland.lua` doesn't set it globally anymore.
+- `quickshell` is the official `extra` package (no AUR needed) — there's
+  deliberately no pre-built shell (Caelestia/DMS/Waybar+Mako+Walker/etc.) on
+  top of it. `base/config/home/{{USER}}/.config/quickshell/` is a small
+  hand-written bar, not a framework:
+  - `shell.qml` — root; uses `Variants`/`Quickshell.screens` to spawn one
+    `Bar` per monitor.
+  - `Bar.qml` — the `PanelWindow` (top strip, 34px): distro logo + workspaces
+    + active window on the left, clock centered, tray/media/notifications/
+    clipboard/bluetooth/network/volume/battery/power on the right.
+    Catppuccin Mocha colors via the `Colors.qml` singleton (`pragma
+    Singleton`, no `qmldir` needed — Quickshell auto-registers
+    uppercase-named sibling `.qml` files as types in the config directory).
+    Type names are chosen to avoid shadowing built-in singletons (e.g.
+    `BatteryWidget.qml` not `Battery.qml`, `NetworkWidget.qml` not
+    `Network.qml`) — QML doesn't allow redeclaring an existing type/property
+    name.
+  - `Workspaces.qml` / `ActiveWindow.qml` — `Quickshell.Hyprland` IPC and the
+    compositor-agnostic `Quickshell.Wayland.ToplevelManager`.
+  - `Media.qml` — `Quickshell.Services.Mpris`; shows the first playing (or
+    otherwise first available) player, click to play/pause.
+  - `Notifications.qml` — `Quickshell.Services.Notifications`; this repo's
+    shell *is* the notification daemon (nothing else provides
+    `org.freedesktop.Notifications`). Currently just an unread-count bell —
+    clicking dismisses everything tracked. No popup/history view yet, that's
+    a bigger feature to add later.
+  - `Clipboard.qml` — runs `cliphist list | fuzzel --dmenu | cliphist decode
+    | wl-copy` on click (cliphist itself is already fed by the
+    `wl-paste --watch cliphist store` autostart line in `hyprland.lua`).
+  - `BluetoothWidget.qml` — `Quickshell.Bluetooth` (BlueZ); needs
+    `bluez`/`bluez-utils` (in `base/packages`, service enabled by
+    `base/hooks/bluez.sh`).
+  - `NetworkWidget.qml` — `Quickshell.Networking` (NetworkManager); shows the
+    connected network's name, with a wifi/wired/none icon.
+  - `Volume.qml` / `BatteryWidget.qml` — `Quickshell.Services.Pipewire` /
+    `.UPower`; needs `pipewire`/`wireplumber`/`upower` (in `base/packages`,
+    enabled by `base/hooks/pipewire.sh`). `BatteryWidget` hides itself
+    (`isLaptopBattery` check) on `D7JW8FS`, which has no battery.
+  - `TrayWidget.qml` — `Quickshell.Services.SystemTray`.
+  - `PowerMenu.qml` / `PowerMenuButton.qml` — a `PopupWindow` with
+    Lock/Log out/Reboot/Shutdown, opened from the ⏻ button. Lock runs
+    `hyprlock` (in `base/packages`); log out uses `Hyprland.dispatch("exit")`.
+  - `assets/arch-logo.svg` — Arch Linux's own "Crystal" icon, used as-is in
+    the bar's top-left corner.
+  - Icons are plain emoji, not Nerd Font glyphs — renders correctly with any
+    font, no icon-codepoint guessing required.
+  `hyprland.lua`'s autostart block runs `qs`, which loads
+  `~/.config/quickshell/shell.qml` by default (no `-c`/`-p` flags needed).
+  `walker`/`mako`/`waybar` were tried and reverted — the app launcher is
+  `fuzzel` again (bound to `$mod+D`), not Walker.
+  This is a hand-rolled starting point, not a finished product — extend it
+  as you go; the Quickshell API calls above were checked against the
+  official docs but not run against a live compositor from this sandbox, so
+  treat first boot as the real test. See
+  [quickshell.org/docs](https://quickshell.org/docs/) for writing more.
 - **hyprpaper** sets the wallpaper: `base/config/home/{{USER}}/.config/hypr/hyprpaper.conf`
   points at
   `~/.wallpapers/catppuccin/mocha/kurzgesagt/Cloudy_Quasar_1-Catppuccin_Mocha.png`.
@@ -179,14 +221,6 @@ to a group, etc.
   launches `start-hyprland` (the crash-recovery/safe-mode wrapper Hyprland
   ships since 0.53+, not the bare `Hyprland` binary) — see
   `base/config/etc/greetd/config.toml`.
-- `hyprland.conf` uses the classic key/value `.conf` syntax, which Hyprland
-  has flagged for removal in 0.57 in favor of a new (currently Lua-based)
-  config format — a startup warning about this is expected for now. Not
-  worth migrating yet since the replacement format is still new/evolving;
-  revisit when it stabilizes.
-- Hyprland 0.55 removed the global `dwindle { pseudotile }` option — pseudo
-  tiling is now per-window only, via the `pseudo` dispatcher or a window
-  rule, so `hyprland.conf` doesn't set it globally anymore.
 - Steam/Lutris require the `[multilib]` repo; `make pkgs` enables it
   automatically in `/etc/pacman.conf` when a host's package list requests
   `steam` or `lutris` and it isn't enabled yet.
