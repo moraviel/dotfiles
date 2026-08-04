@@ -19,6 +19,7 @@ starship
 kitty
 ttf-jetbrains-mono-nerd
 hyprland
+hyprlock
 quickshell
 xorg-xwayland
 xdg-desktop-portal-hyprland
@@ -37,6 +38,8 @@ pipewire-pulse
 pipewire-alsa
 wireplumber
 upower
+bluez
+bluez-utils
 openssh
 cryptsetup
 networkmanager

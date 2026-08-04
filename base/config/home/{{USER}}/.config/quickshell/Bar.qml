@@ -4,6 +4,8 @@ import Quickshell
 PanelWindow {
     id: bar
 
+    property bool powerMenuOpen: false
+
     anchors {
         top: true
         left: true
@@ -24,12 +26,21 @@ PanelWindow {
             color: Colors.surface0
         }
 
-        // Left: workspaces + active window title
+        // Left: distro logo, workspaces, active window title
         Row {
             anchors.left: parent.left
             anchors.leftMargin: 12
             anchors.verticalCenter: parent.verticalCenter
             spacing: 14
+
+            Image {
+                anchors.verticalCenter: parent.verticalCenter
+                source: "assets/arch-logo.svg"
+                sourceSize.width: 18
+                sourceSize.height: 18
+                width: 18
+                height: 18
+            }
 
             Workspaces {
                 anchors.verticalCenter: parent.verticalCenter
@@ -46,7 +57,7 @@ PanelWindow {
             anchors.centerIn: parent
         }
 
-        // Right: tray, volume, battery
+        // Right: tray, media, notifications, clipboard, bluetooth, network, volume, battery, power
         Row {
             anchors.right: parent.right
             anchors.rightMargin: 12
@@ -57,6 +68,26 @@ PanelWindow {
                 anchors.verticalCenter: parent.verticalCenter
             }
 
+            Media {
+                anchors.verticalCenter: parent.verticalCenter
+            }
+
+            Notifications {
+                anchors.verticalCenter: parent.verticalCenter
+            }
+
+            Clipboard {
+                anchors.verticalCenter: parent.verticalCenter
+            }
+
+            BluetoothWidget {
+                anchors.verticalCenter: parent.verticalCenter
+            }
+
+            NetworkWidget {
+                anchors.verticalCenter: parent.verticalCenter
+            }
+
             Volume {
                 anchors.verticalCenter: parent.verticalCenter
             }
@@ -64,6 +95,27 @@ PanelWindow {
             BatteryWidget {
                 anchors.verticalCenter: parent.verticalCenter
             }
+
+            Text {
+                id: powerButton
+                anchors.verticalCenter: parent.verticalCenter
+                color: Colors.text
+                font.pixelSize: 14
+                text: "⏻"
+
+                MouseArea {
+                    anchors.fill: parent
+                    cursorShape: Qt.PointingHandCursor
+                    onClicked: bar.powerMenuOpen = !bar.powerMenuOpen
+                }
+            }
         }
+    }
+
+    PowerMenu {
+        anchor.window: bar
+        anchor.rect.x: bar.width - implicitWidth - 12
+        anchor.rect.y: bar.height
+        visible: bar.powerMenuOpen
     }
 }

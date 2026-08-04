@@ -135,24 +135,52 @@ to a group, etc.
   not a framework:
   - `shell.qml` — root; uses `Variants`/`Quickshell.screens` to spawn one
     `Bar` per monitor.
-  - `Bar.qml` — the `PanelWindow` (top strip): workspaces + active window on
-    the left, clock centered, tray/volume/battery on the right. Catppuccin
-    Mocha colors via the `Colors.qml` singleton (`pragma Singleton`, no
-    `qmldir` needed — Quickshell auto-registers uppercase-named sibling
-    `.qml` files as types in the config directory).
+  - `Bar.qml` — the `PanelWindow` (top strip, 34px): distro logo + workspaces
+    + active window on the left, clock centered, tray/media/notifications/
+    clipboard/bluetooth/network/volume/battery/power on the right.
+    Catppuccin Mocha colors via the `Colors.qml` singleton (`pragma
+    Singleton`, no `qmldir` needed — Quickshell auto-registers
+    uppercase-named sibling `.qml` files as types in the config directory).
+    Type names are chosen to avoid shadowing built-in singletons (e.g.
+    `BatteryWidget.qml` not `Battery.qml`, `NetworkWidget.qml` not
+    `Network.qml`) — QML doesn't allow redeclaring an existing type/property
+    name.
   - `Workspaces.qml` / `ActiveWindow.qml` — `Quickshell.Hyprland` IPC and the
     compositor-agnostic `Quickshell.Wayland.ToplevelManager`.
+  - `Media.qml` — `Quickshell.Services.Mpris`; shows the first playing (or
+    otherwise first available) player, click to play/pause.
+  - `Notifications.qml` — `Quickshell.Services.Notifications`; this repo's
+    shell *is* the notification daemon (nothing else provides
+    `org.freedesktop.Notifications`). Currently just an unread-count bell —
+    clicking dismisses everything tracked. No popup/history view yet, that's
+    a bigger feature to add later.
+  - `Clipboard.qml` — runs `cliphist list | fuzzel --dmenu | cliphist decode
+    | wl-copy` on click (cliphist itself is already fed by the
+    `wl-paste --watch cliphist store` in `hyprland.conf`'s `exec-once`).
+  - `BluetoothWidget.qml` — `Quickshell.Bluetooth` (BlueZ); needs
+    `bluez`/`bluez-utils` (in `base/packages`, service enabled by
+    `base/hooks/bluez.sh`).
+  - `NetworkWidget.qml` — `Quickshell.Networking` (NetworkManager); shows the
+    connected network's name, with a wifi/wired/none icon.
   - `Volume.qml` / `BatteryWidget.qml` — `Quickshell.Services.Pipewire` /
     `.UPower`; needs `pipewire`/`wireplumber`/`upower` (in `base/packages`,
     enabled by `base/hooks/pipewire.sh`). `BatteryWidget` hides itself
     (`isLaptopBattery` check) on `D7JW8FS`, which has no battery.
   - `TrayWidget.qml` — `Quickshell.Services.SystemTray`.
-  - Icons are plain emoji (🔋🔇🔊⚡ etc.), not Nerd Font glyphs — renders
-    correctly with any font, no icon-codepoint guessing required.
+  - `PowerMenu.qml` / `PowerMenuButton.qml` — a `PopupWindow` with
+    Lock/Log out/Reboot/Shutdown, opened from the ⏻ button. Lock runs
+    `hyprlock` (in `base/packages`); log out uses `Hyprland.dispatch("exit")`.
+  - `assets/arch-logo.svg` — Arch Linux's own "Crystal" icon, used as-is in
+    the bar's top-left corner.
+  - Icons are plain emoji (🔋🔇🔊⚡🔔📋🔵📶 etc.), not Nerd Font glyphs —
+    renders correctly with any font, no icon-codepoint guessing required.
   `hyprland.conf` autostarts it via `exec-once = qs`, which loads
   `~/.config/quickshell/shell.qml` by default (no `-c`/`-p` flags needed).
-  This is a starting point, not a finished product — extend it as you go;
-  see [quickshell.org/docs](https://quickshell.org/docs/).
+  This is a hand-rolled starting point, not a finished product — extend it
+  as you go; the Quickshell API calls above were checked against the
+  official docs but not run against a live compositor from this sandbox, so
+  treat first boot as the real test. See
+  [quickshell.org/docs](https://quickshell.org/docs/) for writing more.
 - `greetd` runs `tuigreet` (official `extra` package, no AUR needed), which
   launches `start-hyprland` (the crash-recovery/safe-mode wrapper Hyprland
   ships since 0.53+, not the bare `Hyprland` binary) — see
