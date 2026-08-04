@@ -19,6 +19,7 @@ starship
 kitty
 ttf-jetbrains-mono-nerd
 hyprland
+quickshell
 xorg-xwayland
 xdg-desktop-portal-hyprland
 grim
@@ -31,6 +32,11 @@ slurp
 wl-clipboard
 cliphist
 qt6-multimedia
+pipewire
+pipewire-pulse
+pipewire-alsa
+wireplumber
+upower
 openssh
 cryptsetup
 networkmanager

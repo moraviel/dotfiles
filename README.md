@@ -18,9 +18,9 @@ the Ubuntu installs they're replacing — see
 procedure. This has to be done before this repo is even cloned; `make` only
 configures a system that's already installed.
 
-Desktop stack: **Hyprland** (Wayland compositor) + **Caelestia Shell**
-(Quickshell-based bar/launcher/notifications, installed from AUR) +
-**greetd** with the **tuigreet** greeter.
+Desktop stack: **Hyprland** (Wayland compositor) + **Quickshell** (bar/widgets,
+written from scratch — no pre-built shell) + **greetd** with the **tuigreet**
+greeter.
 
 ## Layout
 
@@ -129,17 +129,30 @@ to a group, etc.
   `hyprctl monitors` after docking and adjust the commented-out `monitor =`
   lines. `D7JW8FS` ships a real 2-monitor layout as a starting point — update
   the connector names to match `hyprctl monitors` on that machine.
-- Caelestia Shell only has an official (non-`-git`) AUR package because it
-  targets Hyprland specifically — that's why this repo uses Hyprland rather
-  than niri. `caelestia-shell`'s AUR dependencies pull in `quickshell-git`,
-  `caelestia-cli`, `fish`, `power-profiles-daemon` and a handful of other
-  tools automatically; `base/hooks/caelestia-shell.sh` just enables
-  `power-profiles-daemon` and seeds an empty `~/.config/caelestia/shell.json`
-  if one doesn't exist yet. The shell autostarts via `exec-once = qs -c
-  caelestia` in `hyprland.conf`; its keybinds are meant to be wired through
-  Hyprland's global shortcuts (see the [Caelestia
-  README](https://github.com/caelestia-dots/shell)) rather than through the
-  plain `bind =` lines already in `hyprland.conf`.
+- `quickshell` is the official `extra` package (no AUR needed) — there's
+  deliberately no pre-built shell (Caelestia/DMS/etc.) on top of it.
+  `base/config/home/{{USER}}/.config/quickshell/` is a small hand-written bar,
+  not a framework:
+  - `shell.qml` — root; uses `Variants`/`Quickshell.screens` to spawn one
+    `Bar` per monitor.
+  - `Bar.qml` — the `PanelWindow` (top strip): workspaces + active window on
+    the left, clock centered, tray/volume/battery on the right. Catppuccin
+    Mocha colors via the `Colors.qml` singleton (`pragma Singleton`, no
+    `qmldir` needed — Quickshell auto-registers uppercase-named sibling
+    `.qml` files as types in the config directory).
+  - `Workspaces.qml` / `ActiveWindow.qml` — `Quickshell.Hyprland` IPC and the
+    compositor-agnostic `Quickshell.Wayland.ToplevelManager`.
+  - `Volume.qml` / `BatteryWidget.qml` — `Quickshell.Services.Pipewire` /
+    `.UPower`; needs `pipewire`/`wireplumber`/`upower` (in `base/packages`,
+    enabled by `base/hooks/pipewire.sh`). `BatteryWidget` hides itself
+    (`isLaptopBattery` check) on `D7JW8FS`, which has no battery.
+  - `TrayWidget.qml` — `Quickshell.Services.SystemTray`.
+  - Icons are plain emoji (🔋🔇🔊⚡ etc.), not Nerd Font glyphs — renders
+    correctly with any font, no icon-codepoint guessing required.
+  `hyprland.conf` autostarts it via `exec-once = qs`, which loads
+  `~/.config/quickshell/shell.qml` by default (no `-c`/`-p` flags needed).
+  This is a starting point, not a finished product — extend it as you go;
+  see [quickshell.org/docs](https://quickshell.org/docs/).
 - `greetd` runs `tuigreet` (official `extra` package, no AUR needed), which
   launches `start-hyprland` (the crash-recovery/safe-mode wrapper Hyprland
   ships since 0.53+, not the bare `Hyprland` binary) — see
@@ -161,7 +174,7 @@ to a group, etc.
   editing your bootloader config for you.
 - Git configuration (`.gitconfig`), GPG/SSH keys, and commit-signing setup
   are **not** managed here — set those up by hand on each machine.
-- AUR package names (VS Code, Caelestia Shell, etc.) can be renamed or
+- AUR package names (VS Code, plymouth themes, etc.) can be renamed or
   dropped by their maintainers over time; if `make aur` fails on one, check
   `https://aur.archlinux.org` for the current name and update `aur-packages`.
 - Several tools are deliberately installed via their own official installer
