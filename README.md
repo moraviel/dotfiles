@@ -159,7 +159,10 @@ to a group, etc.
   `base/config/home/{{USER}}/.config/walker/config.toml`, which only lists
   what's actually installed. Theme is a 5-color-variable override
   (`themes/catppuccin-mocha/style.css`) on top of Walker's bundled `default`
-  theme layout — no custom XML layout needed.
+  theme layout — no custom XML layout needed. `elephant-bin` ships a bare
+  binary with no systemd service or autostart of its own — Walker just shows
+  "Waiting for elephant" forever if nothing starts it, so `hyprland.conf` has
+  `exec-once = elephant` right before the `hyprpaper` line.
 - **hyprpaper** sets the wallpaper: `base/config/home/{{USER}}/.config/hypr/hyprpaper.conf`
   points at
   `~/.wallpapers/catppuccin/mocha/kurzgesagt/Cloudy_Quasar_1-Catppuccin_Mocha.png`.
