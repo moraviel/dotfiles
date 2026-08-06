@@ -56,16 +56,13 @@ Hook responsibilities include: enabling systemd services, adding users to groups
 
 ### Wallpapers
 
-`wallpapers/` is ~677MB of vendored PNGs tracked with Git LFS (see `.gitattributes`). Organized into `catppuccin/`, `nord/`, and `unthemed/` subdirectories. The `hyprpaper.sh` hook copies them to `~/.wallpapers/` once on first run.
+`wallpapers/` is ~677MB of vendored PNGs tracked with Git LFS (see `.gitattributes`). Organized into `catppuccin/`, `nord/`, and `unthemed/` subdirectories. The `noctalia.sh` hook copies them to `~/.wallpapers/` once on first run.
 
 ## Desktop Stack
 
 - **Compositor:** Hyprland (config in Lua)
-- **Bar:** Waybar
-- **Lock/Idle:** hyprlock / hypridle
-- **Wallpaper:** hyprpaper
-- **Launcher:** Fuzzel
-- **Display Manager:** greetd + tuigreet
+- **Shell:** Noctalia (Quickshell-based, AUR package `noctalia`) — one shell providing the bar, launcher, control center, lock screen, idle handling, wallpaper, notifications, clipboard history and OSDs. Launched via `hl.exec_cmd("noctalia")` in `hyprland.lua`'s `hyprland.start` hook; controlled at runtime through `noctalia msg <command>` IPC (see keybinds in `hyprland.lua`). Replaces the previous hand-written Quickshell bar plus hyprlock/hypridle/hyprpaper/fuzzel/cliphist, which are being developed further on the `quickshell` branch instead.
+- **Display Manager:** greetd + tuigreet (unchanged — Noctalia's own greeter was not adopted)
 - **Terminal:** kitty
 - **Shell:** zsh + Oh My Zsh + starship prompt
 - **Audio:** PipeWire + WirePlumber

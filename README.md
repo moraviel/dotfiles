@@ -18,10 +18,16 @@ the Ubuntu installs they're replacing — see
 procedure. This has to be done before this repo is even cloned; `make` only
 configures a system that's already installed.
 
-Desktop stack: **Hyprland** (Wayland compositor) + **Quickshell** (bar/widgets,
-written from scratch — no pre-built shell) + **hyprlock**/**hypridle**
-(lock/idle) + **hyprpaper** (wallpaper) + **greetd** with the **tuigreet**
-greeter. Theme is Catppuccin Mocha throughout.
+Desktop stack: **Hyprland** (Wayland compositor) + **Noctalia** (a
+Quickshell-based shell providing the bar, launcher, control center, lock
+screen, idle handling, wallpaper and notifications as one package) +
+**greetd** with the **tuigreet** greeter. Theme is Catppuccin Mocha
+throughout.
+
+The previous hand-written Quickshell bar (plus hyprlock/hypridle/hyprpaper/
+fuzzel/cliphist) is preserved on the `quickshell` branch, where it continues
+to be developed separately — `master` runs Noctalia for a ready-to-use setup
+on both machines in the meantime.
 
 ## Layout
 
@@ -34,7 +40,7 @@ dotfiles/
 │   └── run-hooks.sh       # implements `make hooks`
 ├── wallpapers/            # vendored copy of github.com/teowelton/Wallpapers
 │                          # (whole repo, ~677MB — copied to ~/.wallpapers/
-│                          # by base/hooks/hyprpaper.sh)
+│                          # by base/hooks/noctalia.sh)
 ├── base/
 │   ├── packages           # pacman packages, common to all machines
 │   ├── aur-packages       # AUR packages (via paru), common to all machines
@@ -151,72 +157,33 @@ to a group, etc.
 - Hyprland 0.55 also removed the global `dwindle` `pseudotile` option —
   pseudo tiling is now per-window only, via the `pseudo` dispatcher or a
   window rule, so `hyprland.lua` doesn't set it globally anymore.
-- `quickshell` is the official `extra` package (no AUR needed) — there's
-  deliberately no pre-built shell (Caelestia/DMS/Waybar+Mako+Walker/etc.) on
-  top of it. `base/config/home/{{USER}}/.config/quickshell/` is a small
-  hand-written bar, not a framework:
-  - `shell.qml` — root; uses `Variants`/`Quickshell.screens` to spawn one
-    `Bar` per monitor.
-  - `Bar.qml` — the `PanelWindow` (top strip, 34px): distro logo + workspaces
-    + active window on the left, clock centered, tray/media/notifications/
-    clipboard/bluetooth/network/volume/battery/power on the right.
-    Catppuccin Mocha colors via the `Colors.qml` singleton (`pragma
-    Singleton`, no `qmldir` needed — Quickshell auto-registers
-    uppercase-named sibling `.qml` files as types in the config directory).
-    Type names are chosen to avoid shadowing built-in singletons (e.g.
-    `BatteryWidget.qml` not `Battery.qml`, `NetworkWidget.qml` not
-    `Network.qml`) — QML doesn't allow redeclaring an existing type/property
-    name.
-  - `Workspaces.qml` / `ActiveWindow.qml` — `Quickshell.Hyprland` IPC and the
-    compositor-agnostic `Quickshell.Wayland.ToplevelManager`.
-  - `Media.qml` — `Quickshell.Services.Mpris`; shows the first playing (or
-    otherwise first available) player, click to play/pause.
-  - `Notifications.qml` — `Quickshell.Services.Notifications`; this repo's
-    shell *is* the notification daemon (nothing else provides
-    `org.freedesktop.Notifications`). Currently just an unread-count bell —
-    clicking dismisses everything tracked. No popup/history view yet, that's
-    a bigger feature to add later.
-  - `Clipboard.qml` — runs `cliphist list | fuzzel --dmenu | cliphist decode
-    | wl-copy` on click (cliphist itself is already fed by the
-    `wl-paste --watch cliphist store` autostart line in `hyprland.lua`).
-  - `BluetoothWidget.qml` — `Quickshell.Bluetooth` (BlueZ); needs
-    `bluez`/`bluez-utils` (in `base/packages`, service enabled by
-    `base/hooks/bluez.sh`).
-  - `NetworkWidget.qml` — `Quickshell.Networking` (NetworkManager); shows the
-    connected network's name, with a wifi/wired/none icon.
-  - `Volume.qml` / `BatteryWidget.qml` — `Quickshell.Services.Pipewire` /
-    `.UPower`; needs `pipewire`/`wireplumber`/`upower` (in `base/packages`,
-    enabled by `base/hooks/pipewire.sh`). `BatteryWidget` hides itself
-    (`isLaptopBattery` check) on `D7JW8FS`, which has no battery.
-  - `TrayWidget.qml` — `Quickshell.Services.SystemTray`.
-  - `PowerMenu.qml` / `PowerMenuButton.qml` — a `PopupWindow` with
-    Lock/Log out/Reboot/Shutdown, opened from the ⏻ button. Lock runs
-    `hyprlock` (in `base/packages`); log out uses `Hyprland.dispatch("exit")`.
-  - `assets/arch-logo.svg` — Arch Linux's own "Crystal" icon, used as-is in
-    the bar's top-left corner.
-  - Icons are plain emoji, not Nerd Font glyphs — renders correctly with any
-    font, no icon-codepoint guessing required.
-  `hyprland.lua`'s autostart block runs `qs`, which loads
-  `~/.config/quickshell/shell.qml` by default (no `-c`/`-p` flags needed).
-  `walker`/`mako`/`waybar` were tried and reverted — the app launcher is
-  `fuzzel` again (bound to `$mod+D`), not Walker.
-  This is a hand-rolled starting point, not a finished product — extend it
-  as you go; the Quickshell API calls above were checked against the
-  official docs but not run against a live compositor from this sandbox, so
-  treat first boot as the real test. See
-  [quickshell.org/docs](https://quickshell.org/docs/) for writing more.
-- **hyprpaper** sets the wallpaper: `base/config/home/{{USER}}/.config/hypr/hyprpaper.conf`
-  points at
-  `~/.wallpapers/catppuccin/mocha/kurzgesagt/Cloudy_Quasar_1-Catppuccin_Mocha.png`.
-  That path only exists after `base/hooks/hyprpaper.sh` copies the
-  `wallpapers/` directory (vendored directly in this repo, not a submodule —
-  it's ~677MB, so cloning this repo takes a while) to `~/.wallpapers/` (first
-  run only — it skips the copy if `~/.wallpapers` already exists, so it won't
-  stomp on wallpapers you add there yourself).
-- **hyprlock** (`hyprlock.conf`) shows the same wallpaper blurred, a clock,
-  and a password field; bound to `$mod+L`. **hypridle** (`hypridle.conf`)
-  locks after 5 minutes idle and turns the display off 30 seconds after that
-  — both configs are in `base/config/home/{{USER}}/.config/hypr/`.
+- **Noctalia** (`noctalia` AUR package, built on Quickshell) is the whole
+  desktop shell now — one process providing the bar, app launcher, control
+  center, lock screen, idle behavior, wallpaper, notifications, clipboard
+  history and OSDs, instead of the separate
+  hyprlock/hypridle/hyprpaper/fuzzel/cliphist/Quickshell-bar combo used
+  before. It replaces all of those packages and their configs; none of them
+  are in `base/packages` or `base/config` anymore.
+  - Started from `hyprland.lua`'s `hyprland.start` autostart hook via
+    `hl.exec_cmd("noctalia")`.
+  - Controlled at runtime through `noctalia msg <command>` IPC — see the
+    keybinds in `hyprland.lua` (`$mod+D` launcher, `$mod+S` control center,
+    `$mod+L` lock). Run `noctalia msg --help` for the full command list.
+  - `base/hooks/noctalia.sh` (previously `hyprpaper.sh`) still seeds
+    `~/.wallpapers/` from the vendored `wallpapers/` directory on first run,
+    so Noctalia's own wallpaper picker has something to point at — first-run
+    theme/wallpaper/idle-timeout settings are configured through Noctalia's
+    own settings UI (`noctalia msg settings-open`) rather than a hand-written
+    dotfile, since it manages its own `~/.config/noctalia/settings.toml`.
+  - A `hl.window_rule`/`hl.layer_rule` pair in `hyprland.lua` (float + size
+    for the settings window, blur + no-anim for the bar/panels/OSD/dock
+    layers) mirrors Noctalia's own recommended Hyprland config.
+  - Noctalia also ships an optional greeter (`noctalia-greeter-session`) that
+    could replace `greetd`+`tuigreet` — not adopted here, greetd/tuigreet is
+    unchanged.
+  - The previous hand-written Quickshell bar (`Bar.qml`, `Workspaces.qml`,
+    etc.) is preserved on the `quickshell` branch, where that approach
+    continues to be developed independently of this stack.
 - `greetd` runs `tuigreet` (official `extra` package, no AUR needed), which
   launches `start-hyprland` (the crash-recovery/safe-mode wrapper Hyprland
   ships since 0.53+, not the bare `Hyprland` binary) — see

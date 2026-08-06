@@ -19,14 +19,9 @@ starship
 kitty
 ttf-jetbrains-mono-nerd
 hyprland
-hyprlock
-hypridle
-hyprpaper
-quickshell
 xorg-xwayland
 xdg-desktop-portal-hyprland
 grim
-fuzzel
 xdg-user-dirs
 greetd
 greetd-tuigreet
@@ -35,7 +30,6 @@ cava
 wf-recorder
 slurp
 wl-clipboard
-cliphist
 qt6-multimedia
 pipewire
 pipewire-pulse

@@ -4,7 +4,7 @@
 
 local mod = "SUPER"
 local terminal = "kitty"
-local launcher = "fuzzel"
+local noctalia = "noctalia msg "
 
 ------------------
 ---- MONITORS ----
@@ -18,10 +18,7 @@ hl.monitor({ output = "DP-2", mode = "preferred", position = "1920x0", scale = 1
 ------------------
 
 hl.on("hyprland.start", function()
-    hl.exec_cmd("wl-paste --watch cliphist store")
-    hl.exec_cmd("hyprpaper")
-    hl.exec_cmd("qs")
-    hl.exec_cmd("hypridle")
+    hl.exec_cmd("noctalia")
 end)
 
 -----------------------
@@ -54,6 +51,27 @@ hl.config({
     },
 })
 
+------------------------------
+---- NOCTALIA LAYER RULES ----
+------------------------------
+
+hl.window_rule({
+    match = { class = "dev.noctalia.Noctalia" },
+    float = true,
+    size = { 1080, 920 },
+})
+
+hl.layer_rule({
+    name = "noctalia",
+    match = {
+        namespace = "^noctalia-(bar-.+|notification|dock|panel|attached-panel|osd|window-switcher)$",
+    },
+    no_anim = true,
+    ignore_alpha = 0.5,
+    blur = true,
+    blur_popups = true,
+})
+
 ---------------
 ---- INPUT ----
 ---------------
@@ -75,10 +93,11 @@ hl.config({
 ---------------------
 
 hl.bind(mod .. " + Return", hl.dsp.exec_cmd(terminal))
-hl.bind(mod .. " + D", hl.dsp.exec_cmd(launcher))
+hl.bind(mod .. " + D", hl.dsp.exec_cmd(noctalia .. "panel-toggle launcher"))
+hl.bind(mod .. " + S", hl.dsp.exec_cmd(noctalia .. "panel-toggle control-center"))
 hl.bind(mod .. " + Q", hl.dsp.window.close())
 hl.bind(mod .. " + SHIFT + E", hl.dsp.exit())
-hl.bind(mod .. " + L", hl.dsp.exec_cmd("hyprlock"))
+hl.bind(mod .. " + L", hl.dsp.exec_cmd(noctalia .. "session lock"))
 
 hl.bind(mod .. " + left", hl.dsp.focus({ direction = "l" }))
 hl.bind(mod .. " + right", hl.dsp.focus({ direction = "r" }))
