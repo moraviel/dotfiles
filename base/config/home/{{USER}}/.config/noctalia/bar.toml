@@ -1,6 +1,0 @@
-[widget.logo]
-type = "label"
-text = ""
-
-[bar.default]
-start = ["logo", "launcher", "wallpapers" , "workspaces"]
