@@ -40,7 +40,7 @@ dotfiles/
 │   └── run-hooks.sh       # implements `make hooks`
 ├── wallpapers/            # vendored copy of github.com/teowelton/Wallpapers
 │                          # (whole repo, ~677MB — copied to ~/.wallpapers/
-│                          # by base/hooks/noctalia.sh)
+│                          # by base/hooks/noctalia-shell.sh)
 ├── base/
 │   ├── packages           # pacman packages, common to all machines
 │   ├── aur-packages       # AUR packages (via paru), common to all machines
@@ -157,7 +157,7 @@ to a group, etc.
 - Hyprland 0.55 also removed the global `dwindle` `pseudotile` option —
   pseudo tiling is now per-window only, via the `pseudo` dispatcher or a
   window rule, so `hyprland.lua` doesn't set it globally anymore.
-- **Noctalia** (`noctalia` AUR package, built on Quickshell) is the whole
+- **Noctalia** (`noctalia-shell` AUR package, built on Quickshell) is the whole
   desktop shell now — one process providing the bar, app launcher, control
   center, lock screen, idle behavior, wallpaper, notifications, clipboard
   history and OSDs, instead of the separate
@@ -169,7 +169,7 @@ to a group, etc.
   - Controlled at runtime through `noctalia msg <command>` IPC — see the
     keybinds in `hyprland.lua` (`$mod+D` launcher, `$mod+S` control center,
     `$mod+L` lock). Run `noctalia msg --help` for the full command list.
-  - `base/hooks/noctalia.sh` (previously `hyprpaper.sh`) still seeds
+  - `base/hooks/noctalia-shell.sh` (previously `hyprpaper.sh`) still seeds
     `~/.wallpapers/` from the vendored `wallpapers/` directory on first run,
     so Noctalia's own wallpaper picker has something to point at — first-run
     theme/wallpaper/idle-timeout settings are configured through Noctalia's
