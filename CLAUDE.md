@@ -56,7 +56,7 @@ Hook responsibilities include: enabling systemd services, adding users to groups
 
 ### Wallpapers
 
-`wallpapers/` is ~677MB of vendored PNGs tracked with Git LFS (see `.gitattributes`). Organized into `catppuccin/`, `nord/`, and `unthemed/` subdirectories. The `noctalia-shell.sh` hook copies them to `~/.wallpapers/` once on first run.
+`wallpapers/` is ~677MB of vendored PNGs tracked with Git LFS (see `.gitattributes`). Organized into `catppuccin/`, `nord/`, and `unthemed/` subdirectories. `make deps` installs `git-lfs` if missing and runs `git lfs pull` (needed because the initial `git clone` happens before `make` ever runs, so LFS smudging can't be relied on at clone time). The `noctalia-shell.sh` hook then copies the resolved files to `~/.wallpapers/` once on first run, with its own `git lfs pull` fallback if it's ever invoked before `make deps`.
 
 ## Desktop Stack
 

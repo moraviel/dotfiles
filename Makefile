@@ -7,6 +7,13 @@ all: deps pkgs aur cfg hooks
 deps:
 	@echo "--- Initializing submodules ---"
 	@git submodule update --init --recursive
+	@if ! command -v git-lfs >/dev/null 2>&1; then \
+		echo "--- Installing git-lfs ---"; \
+		sudo pacman -S --needed --noconfirm git-lfs; \
+	fi
+	@git lfs install --local
+	@echo "--- Pulling Git LFS objects (wallpapers) ---"
+	@git lfs pull
 	@if ! command -v paru >/dev/null 2>&1; then \
 		echo "--- Installing paru from AUR ---"; \
 		sudo pacman -S --needed --noconfirm base-devel git; \

@@ -69,7 +69,7 @@ make            # deps -> pkgs -> aur -> cfg -> hooks
 Or run steps individually:
 
 ```sh
-make deps    # git submodules + install paru if missing
+make deps    # git submodules + git-lfs (install + pull wallpapers) + install paru if missing
 make pkgs    # pacman -S base/packages + <hostname>/packages (deduped)
 make aur     # paru -S base/aur-packages + <hostname>/aur-packages (deduped)
 make cfg     # deploy config/ -> / for base, then for the current hostname
@@ -175,6 +175,10 @@ to a group, etc.
     theme/wallpaper/idle-timeout settings are configured through Noctalia's
     own settings UI (`noctalia msg settings-open`) rather than a hand-written
     dotfile, since it manages its own `~/.config/noctalia/settings.toml`.
+    `make deps` installs `git-lfs` and runs `git lfs pull` before this hook
+    ever runs, so the copied wallpapers are real PNGs rather than unresolved
+    LFS pointer stubs; the hook also re-runs `git lfs pull` itself as a
+    fallback if it's ever invoked without `make deps` having run first.
   - A `hl.window_rule`/`hl.layer_rule` pair in `hyprland.lua` (float + size
     for the settings window, blur + no-anim for the bar/panels/OSD/dock
     layers) mirrors Noctalia's own recommended Hyprland config.
