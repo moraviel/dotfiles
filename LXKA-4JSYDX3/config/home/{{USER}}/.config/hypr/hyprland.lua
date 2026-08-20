@@ -1,7 +1,7 @@
 -- Hyprland config — LXKA-4JSYDX3 (work laptop, NVIDIA, shared desk).
 -- Monitor layout is deliberately loose: this laptop docks at different desks
--- with 2-3 external monitors depending on the office. Run `hyprctl monitors`
--- after docking to get real connector names, then uncomment/adjust below.
+-- with 2-3 external monitors depending on the office.
+-- Use Monique for setting Monitors up.
 
 local mod = "SUPER"
 local terminal = "kitty"
@@ -13,6 +13,9 @@ hl.env("LIBVA_DRIVER_NAME", "nvidia")
 hl.env("__GLX_VENDOR_LIBRARY_NAME", "nvidia")
 hl.env("NVD_BACKEND", "direct")
 hl.env("WLR_NO_HARDWARE_CURSORS", "1")
+
+-- env for ssh-agent
+hl.env("SSH_AUTH_SOCK", "/run/user/1000/ssh-agent.socket")
 
 ------------------
 ---- MONITORS ----
@@ -31,6 +34,8 @@ hl.monitor({ output = "eDP-1", mode = "preferred", position = "auto", scale = 1 
 
 hl.on("hyprland.start", function()
     hl.exec_cmd("noctalia")
+    hl.dsp.exec_cmd("wl-paste --type text --watch cliphist store &")
+    hl.dsp.exec_cmd("wl-paste --type image --watch cliphist store &")
 end)
 
 -----------------------
@@ -46,19 +51,15 @@ hl.config({
             active_border = "rgb(cba6f7)",
             inactive_border = "rgb(45475a)",
         },
-        layout = "dwindle",
+        layout = "master",
     },
 
     decoration = {
         rounding = 8,
-    },
-
-    dwindle = {
-        preserve_split = true,
-    },
+    }, 
 
     misc = {
-        disable_hyprland_logo = true,
+        disable_hyprland_logo = false,
         disable_splash_rendering = true,
     },
 })
@@ -90,8 +91,10 @@ hl.layer_rule({
 
 hl.config({
     input = {
-        kb_layout = "us",
+        kb_layout = "us, de, ru",
+        kb_options = "grp:win_space_toggle",
         follow_mouse = 1,
+        resolve_binds_by_sym = true,
 
         touchpad = {
             natural_scroll = true,
@@ -100,28 +103,9 @@ hl.config({
     },
 })
 
----------------------
----- KEYBINDINGS ----
----------------------
+-- Load configuration modules
+require("keybinds")
+require("monitors")
 
-hl.bind(mod .. " + Return", hl.dsp.exec_cmd(terminal))
-hl.bind(mod .. " + D", hl.dsp.exec_cmd(noctalia .. "panel-toggle launcher"))
-hl.bind(mod .. " + S", hl.dsp.exec_cmd(noctalia .. "panel-toggle control-center"))
-hl.bind(mod .. " + Q", hl.dsp.window.close())
-hl.bind(mod .. " + SHIFT + E", hl.dsp.exit())
-hl.bind(mod .. " + L", hl.dsp.exec_cmd(noctalia .. "session lock"))
-
-hl.bind(mod .. " + left", hl.dsp.focus({ direction = "l" }))
-hl.bind(mod .. " + right", hl.dsp.focus({ direction = "r" }))
-hl.bind(mod .. " + up", hl.dsp.focus({ direction = "u" }))
-hl.bind(mod .. " + down", hl.dsp.focus({ direction = "d" }))
-
-for i = 1, 5 do
-    hl.bind(mod .. " + " .. i, hl.dsp.focus({ workspace = i }))
-    hl.bind(mod .. " + SHIFT + " .. i, hl.dsp.window.move({ workspace = i }))
-end
-
-hl.bind(mod .. " + F", hl.dsp.window.fullscreen({ mode = "maximized" }))
-hl.bind(mod .. " + SHIFT + F", hl.dsp.window.fullscreen({ mode = "fullscreen" }))
-
-hl.bind("Print", hl.dsp.exec_cmd('grim -g "$(slurp)" ~/Pictures/screenshot-$(date +%s).png'))
+-- For Noctalia Color templates
+require("noctalia").apply_theme()
