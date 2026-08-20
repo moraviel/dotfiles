@@ -7,10 +7,10 @@ matching machine. The host layer is picked up automatically from
 
 ## Machines
 
-| Hostname       | Role                | GPU    | Monitors                          |
-|----------------|---------------------|--------|------------------------------------|
-| `LXKA-4JSYDX3` | Work laptop         | NVIDIA | 1 built-in + 2-3 external (shared desk, varies by office) |
-| `D7JW8FS`      | Personal desktop    | none (integrated) | 2 fixed |
+| Hostname       | Role                | GPU                | Monitors                          |
+|----------------|---------------------|--------------------|------------------------------------|
+| `LXKA-4JSYDX3` | Work laptop         | NVIDIA             | 1 built-in + 2-3 external (shared desk, varies by office) |
+| `D7JW8FS`      | Personal desktop    | Radeon RX7600 Dual | 2 fixed |
 
 Both machines should be installed with full-disk encryption (LUKS2), same as
 the Ubuntu installs they're replacing — see
@@ -132,6 +132,66 @@ For every package name in `base/packages`, `base/aur-packages`,
 exist (base first). Use these for anything a plain package install doesn't
 cover: enabling a systemd service, editing `mkinitcpio.conf`, adding the user
 to a group, etc.
+
+## Adding to this repo
+
+Where something goes depends on whether it applies to every machine (`base/`)
+or only one (`<hostname>/`, e.g. `LXKA-4JSYDX3/` or `D7JW8FS/`). Host layers
+fully replace base files at the same path — there's no merging — so only put
+something in a host layer if it's genuinely machine-specific.
+
+- **New pacman package** — add its name to `base/packages` (or
+  `<hostname>/packages` if host-specific), one per line, `#` comments allowed.
+- **New AUR package** — same, but in `base/aur-packages` /
+  `<hostname>/aur-packages`; installed via `paru` in `make aur`.
+- **New dotfile / config file** — place it under `base/config/` (or
+  `<hostname>/config/`) at the path it should end up at, minus the leading
+  `/`:
+  - `config/home/{{USER}}/X` → `$HOME/X` (deployed as the current user)
+  - `config/etc/X` → `/etc/X` (deployed with `sudo`)
+  - `config/usr/X` → `/usr/X` (deployed with `sudo`)
+  - Use the literal `{{USER}}` placeholder in file *contents* (not just the
+    path) if the file needs the actual username — it's substituted with
+    `$USER` at deploy time.
+  - If the target directory should be wiped before the new files land (e.g.
+    replacing a whole config directory rather than adding to it), drop a
+    `.clean` marker file next to it — see `deploy-config.sh` for exact
+    semantics. Empty directories that need to exist in git can use
+    `.gitkeep`. Neither marker is ever copied to the target.
+- **New post-install hook** — add `base/hooks/<pkg-name>.sh` (or
+  `<hostname>/hooks/<pkg-name>.sh`), named after the package whose
+  installation should trigger it; it only runs if `<pkg-name>` appears in the
+  combined package list for that layer. Use `always.sh` instead if it must
+  run unconditionally regardless of installed packages. Requirements for any
+  hook script:
+  - Idempotent — safe to re-run on every `make hooks`/`make` (check
+    before acting, e.g. `systemctl is-enabled` before `enable`, check a file
+    exists before creating it).
+  - `set -euo pipefail` at the top, matching existing hooks.
+  - If it needs to touch system files (bootloader config, PAM, etc.) that
+    are risky to script blindly, print instructions instead of editing them
+    automatically — see `plymouth.sh`/`nvidia-open.sh`/`gnome-keyring.sh` for
+    the pattern.
+- **New script for `~/.local/bin/`** — same mechanism as any other dotfile:
+  place it at `base/config/home/{{USER}}/.local/bin/<name>` (or under the
+  host layer if it's machine-specific); `~/.local/bin` is already on `$PATH`
+  via `.zshrc`. **Caveat:** `deploy-config.sh` writes deployed files through
+  `sed ... > target` (to substitute `{{USER}}`), not `cp`, so the execute bit
+  is never preserved or set — a script deployed this way lands as `644`.
+  Either `chmod +x` it manually after `make cfg`, or add a step to
+  `base/hooks/always.sh` (or a dedicated hook) that chmods it, similar to how
+  `always.sh` sets up `~/.local/bin/jetbrains-toolbox`.
+- **Host-specific override of a base file** — copy the *entire* file (not a
+  diff/patch) to the same relative path under `<hostname>/config/`; it fully
+  replaces the base version for that host during `make cfg`.
+- **New machine/host** — create a `<HOSTNAME>/` directory (matching
+  `/etc/hostname` on that machine) with `packages`, `aur-packages`, `config/`
+  and `hooks/`, mirroring the layout of the existing host directories; also
+  add a row to the [Machines](#machines) table above.
+
+After adding config files or hooks, run `make cfg` / `make hooks`
+individually to test just that piece rather than the full `make`, and use
+`make rollback` if a config deploy needs undoing (see below).
 
 ## Notes
 
