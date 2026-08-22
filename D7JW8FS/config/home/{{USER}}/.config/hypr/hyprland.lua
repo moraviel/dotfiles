@@ -14,8 +14,8 @@ hl.env("SSH_AUTH_SOCK", "/run/user/1000/ssh-agent.socket")
 ---- MONITORS ----
 ------------------
 
-hl.monitor({ output = "DP-1", mode = "preferred", position = "0x0", scale = 1 })
-hl.monitor({ output = "DP-2", mode = "preferred", position = "1920x0", scale = 1 })
+--hl.monitor({ output = "DP-1", mode = "preferred", position = "0x0", scale = 1 })
+--hl.monitor({ output = "DP-2", mode = "preferred", position = "1920x0", scale = 1 })
 
 ------------------
 ---- AUTOSTART ----
@@ -51,6 +51,27 @@ hl.config({
         disable_hyprland_logo = false,
         disable_splash_rendering = true,
     },
+})
+
+---------------
+---- RULES ----
+---------------
+
+hl.workspace_rule({
+    workspace = "name:gaming"
+    layout = "monocle"
+})
+
+hl.window_rule({
+    match = { class = "steam_app.*" },
+    content = "game",
+})
+
+hl.window_rule({
+    match = { class = "game" },
+    idle_inhibit = "focus",
+    workspace = "gaming"
+    fullscreen = true,
 })
 
 ------------------------------
@@ -96,6 +117,4 @@ hl.config({
 require("keybinds")
 --require("monitors")
 
--- For Noctalia Color templates
-require("noctalia").apply_theme()
 
