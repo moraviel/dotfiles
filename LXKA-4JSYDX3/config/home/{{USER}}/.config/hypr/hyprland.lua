@@ -106,6 +106,3 @@ hl.config({
 -- Load configuration modules
 require("keybinds")
 require("monitors")
-
--- For Noctalia Color templates
-require("noctalia").apply_theme()

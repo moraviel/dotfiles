@@ -83,28 +83,5 @@ hl.config({
     },
 })
 
----------------------
----- KEYBINDINGS ----
----------------------
-
-hl.bind(mod .. " + Return", hl.dsp.exec_cmd(terminal))
-hl.bind(mod .. " + D", hl.dsp.exec_cmd(noctalia .. "panel-toggle launcher"))
-hl.bind(mod .. " + S", hl.dsp.exec_cmd(noctalia .. "panel-toggle control-center"))
-hl.bind(mod .. " + Q", hl.dsp.window.close())
-hl.bind(mod .. " + SHIFT + E", hl.dsp.exit())
-hl.bind(mod .. " + L", hl.dsp.exec_cmd(noctalia .. "session lock"))
-
-hl.bind(mod .. " + left", hl.dsp.focus({ direction = "l" }))
-hl.bind(mod .. " + right", hl.dsp.focus({ direction = "r" }))
-hl.bind(mod .. " + up", hl.dsp.focus({ direction = "u" }))
-hl.bind(mod .. " + down", hl.dsp.focus({ direction = "d" }))
-
-for i = 1, 5 do
-    hl.bind(mod .. " + " .. i, hl.dsp.focus({ workspace = i }))
-    hl.bind(mod .. " + SHIFT + " .. i, hl.dsp.window.move({ workspace = i }))
-end
-
-hl.bind(mod .. " + F", hl.dsp.window.fullscreen({ mode = "maximized" }))
-hl.bind(mod .. " + SHIFT + F", hl.dsp.window.fullscreen({ mode = "fullscreen" }))
-
-hl.bind("Print", hl.dsp.exec_cmd('grim -g "$(slurp)" ~/Pictures/screenshot-$(date +%s).png'))
+-- Load configuration modules | uncomment monitors-requirement after adding config using monique
+require("keybinds")

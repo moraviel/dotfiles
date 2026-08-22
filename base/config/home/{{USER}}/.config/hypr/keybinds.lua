@@ -23,6 +23,7 @@ for i = 1, 9 do
     hl.bind(mod .. " + SHIFT + " .. i, hl.dsp.window.move({ workspace = i }))
 end
 
+hl.bind(mod .. " + SHIFT + G", hl.dsp.focus({ workspace = "name:gaming" }))
 hl.bind(mod .. " + F", hl.dsp.window.fullscreen({ mode = "maximized" }))
 hl.bind(mod .. " + SHIFT + F", hl.dsp.window.fullscreen({ mode = "fullscreen" }))
 
