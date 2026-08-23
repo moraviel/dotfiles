@@ -18,11 +18,10 @@ the Ubuntu installs they're replacing — see
 procedure. This has to be done before this repo is even cloned; `make` only
 configures a system that's already installed.
 
-Desktop stack: **Hyprland** (Wayland compositor) + **Noctalia** (a
-Quickshell-based shell providing the bar, launcher, control center, lock
-screen, idle handling, wallpaper and notifications as one package) +
-**greetd** with the **tuigreet** greeter. Theme is Catppuccin Mocha
-throughout.
+Desktop stack: **Hyprland** (Wayland compositor) + **Noctalia** (a C++
+desktop shell providing the bar, launcher, control center, lock screen, idle
+handling, wallpaper and notifications as one package) + **greetd** with the
+**tuigreet** greeter. Theme is Catppuccin Mocha throughout.
 
 The previous hand-written Quickshell bar (plus hyprlock/hypridle/hyprpaper/
 fuzzel/cliphist) is preserved on the `quickshell` branch, where it continues
@@ -40,7 +39,7 @@ dotfiles/
 │   └── run-hooks.sh       # implements `make hooks`
 ├── wallpapers/            # vendored copy of github.com/teowelton/Wallpapers
 │                          # (whole repo, ~677MB — copied to ~/.wallpapers/
-│                          # by base/hooks/noctalia-shell.sh)
+│                          # by base/hooks/noctalia.sh)
 ├── base/
 │   ├── packages           # pacman packages, common to all machines
 │   ├── aur-packages       # AUR packages (via paru), common to all machines
@@ -195,29 +194,11 @@ individually to test just that piece rather than the full `make`, and use
 
 ## Notes
 
-- Monitor layout for `LXKA-4JSYDX3` is intentionally left mostly unconfigured
-  in `hyprland.lua` since the external monitor setup changes by desk; run
-  `hyprctl monitors` after docking and adjust the commented-out
-  `hl.monitor({...})` calls. `D7JW8FS` ships a real 2-monitor layout as a
-  starting point — update the connector names to match `hyprctl monitors` on
-  that machine.
-- `hyprland.conf` was migrated to `hyprland.lua` — Hyprland deprecated the
-  classic key/value `.conf` syntax (hyprlang) in favor of Lua as of 0.55, and
-  will drop `.conf` support entirely in 0.57. The `hl.*` API used here (
-  `hl.config({...})`, `hl.monitor({...})`, `hl.bind(...)`,
-  `hl.on("hyprland.start", ...)`, `hl.dsp.*` dispatchers) was checked against
-  the [official wiki](https://wiki.hypr.land/Configuring/Start/) and
-  [Hyprland's own example config](https://github.com/hyprwm/Hyprland/blob/main/example/hyprland.lua),
-  and every `.lua` file in this repo was syntax-checked with a real Lua
-  parser (not just eyeballed) before being committed — but none of it has run
-  against a live Hyprland session from this sandbox, so treat the first
-  reload/reboot after pulling this as the real test. One renamed option to
-  know about: touchpad `tap-to-click` became `tap_to_click` (Lua table keys
-  can't contain hyphens).
-- Hyprland 0.55 also removed the global `dwindle` `pseudotile` option —
-  pseudo tiling is now per-window only, via the `pseudo` dispatcher or a
-  window rule, so `hyprland.lua` doesn't set it globally anymore.
-- **Noctalia** (`noctalia-shell` AUR package, built on Quickshell) is the whole
+- Monitor layout is being handed off to `monique` (AUR package, in
+  `base/aur-packages`).
+- **Noctalia** (a C++ desktop shell, `noctalia` package — ships in the
+  official `[extra]` repo, hence `base/packages` rather than
+  `base/aur-packages`) is the whole
   desktop shell now — one process providing the bar, app launcher, control
   center, lock screen, idle behavior, wallpaper, notifications, clipboard
   history and OSDs, instead of the separate
@@ -227,9 +208,22 @@ individually to test just that piece rather than the full `make`, and use
   - Started from `hyprland.lua`'s `hyprland.start` autostart hook via
     `hl.exec_cmd("noctalia")`.
   - Controlled at runtime through `noctalia msg <command>` IPC — see the
-    keybinds in `hyprland.lua` (`$mod+D` launcher, `$mod+S` control center,
+    keybinds in `keybinds.lua` (`$mod+D` launcher, `$mod+S` control center,
     `$mod+L` lock). Run `noctalia msg --help` for the full command list.
-  - `base/hooks/noctalia-shell.sh` (previously `hyprpaper.sh`) still seeds
+  - Keybindings live in `keybinds.lua` (`require("keybinds")` from
+    `hyprland.lua`), not inline in `hyprland.lua` itself — same file for base
+    and both hosts. Workspaces 1-9 are bound (`$mod+1..9` focus,
+    `$mod+SHIFT+1..9` move), plus a named `gaming` workspace
+    (`$mod+SHIFT+G`) used on `D7JW8FS` (see below). Screenshot binding
+    (`Print`) shells out to `~/.local/bin/screenshot`, which isn't part of
+    this repo yet — add it under `base/config/home/{{USER}}/.local/bin/` (and
+    remember to make it executable, see the `~/.local/bin/` note above) or
+    the binding will do nothing until then.
+  - The Hyprland-side Noctalia color-template integration
+    (`require("noctalia").apply_theme()`) has been removed from both hosts'
+    `hyprland.lua` — theming is Noctalia's own settings UI now, not a
+    generated Lua module.
+  - `base/hooks/noctalia.sh` (previously `noctalia-shell.sh`/`hyprpaper.sh`) still seeds
     `~/.wallpapers/` from the vendored `wallpapers/` directory on first run,
     so Noctalia's own wallpaper picker has something to point at — first-run
     theme/wallpaper/idle-timeout settings are configured through Noctalia's
@@ -284,7 +278,14 @@ individually to test just that piece rather than the full `make`, and use
   - **Claude Code** — `curl -fsSL https://claude.ai/install.sh | bash`
   - **Opencode** — `curl -fsSL https://opencode.ai/install | bash`
   - **Codex** — `curl -fsSL https://chatgpt.com/codex/install.sh | sh`
-- **Bitwarden** is installed from Flathub, not AUR: `flatpak` is in
-  `base/packages`, and `base/hooks/flatpak.sh` adds the Flathub remote
-  (`flatpak remote-add --if-not-exists flathub ...`) and then installs
-  `com.bitwarden.desktop` system-wide.
+- **Bitwarden** moved from Flathub to a plain pacman package (`bitwarden` in
+  `base/packages`). `flatpak` is still in `base/packages` for
+  **Qalculate** instead: `base/hooks/flatpak.sh` adds the Flathub remote
+  (`flatpak remote-add --if-not-exists flathub ...`) and installs
+  `io.github.Qalculate` system-wide; it's bound to the `XF86Calculator` key
+  in `keybinds.lua`.
+- `D7JW8FS` has a dedicated `gaming` Hyprland workspace: a
+  `hl.workspace_rule` sets it to `monocle` layout, and window rules tag
+  `steam_app.*` windows as `content = "game"` and route anything matching
+  `class = "game"` to that workspace with idle-inhibit and fullscreen. Switch
+  to it with `$mod+SHIFT+G` (`keybinds.lua`).

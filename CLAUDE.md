@@ -34,8 +34,8 @@ base/               # Applied to every machine
     always.sh       # Always runs, unconditionally
 
 <hostname>/         # Machine-specific overlay, same structure
-  LXKA-4JSYDX3/    # Work laptop (NVIDIA, multi-monitor)
-  D7JW8FS/          # Personal desktop (gaming, integrated GPU)
+  LXKA-4JSYDX3/     # Work laptop (NVIDIA)
+  D7JW8FS/          # Personal desktop (AMD RADEON)
 ```
 
 Host-specific config files **fully replace** (not merge with) base files at the same path.
@@ -56,12 +56,12 @@ Hook responsibilities include: enabling systemd services, adding users to groups
 
 ### Wallpapers
 
-`wallpapers/` is ~677MB of vendored PNGs tracked with Git LFS (see `.gitattributes`). Organized into `catppuccin/`, `nord/`, and `unthemed/` subdirectories. `make deps` installs `git-lfs` if missing and runs `git lfs pull` (needed because the initial `git clone` happens before `make` ever runs, so LFS smudging can't be relied on at clone time). The `noctalia-shell.sh` hook then copies the resolved files to `~/.wallpapers/` once on first run, with its own `git lfs pull` fallback if it's ever invoked before `make deps`.
+`wallpapers/` is ~677MB of vendored PNGs tracked with Git LFS (see `.gitattributes`). Organized into `catppuccin/`, `nord/`, and `unthemed/` subdirectories. `git-lfs` is both listed in `base/packages` and installed directly by `make deps` if missing, which then runs `git lfs pull` (needed because the initial `git clone` happens before `make` ever runs, so LFS smudging can't be relied on at clone time). The `noctalia.sh` hook then copies the resolved files to `~/.wallpapers/` once on first run, with its own `git lfs pull` fallback if it's ever invoked before `make deps`.
 
 ## Desktop Stack
 
 - **Compositor:** Hyprland (config in Lua)
-- **Shell:** Noctalia (Quickshell-based, AUR package `noctalia-shell`) — one shell providing the bar, launcher, control center, lock screen, idle handling, wallpaper, notifications, clipboard history and OSDs. Launched via `hl.exec_cmd("noctalia")` in `hyprland.lua`'s `hyprland.start` hook; controlled at runtime through `noctalia msg <command>` IPC (see keybinds in `hyprland.lua`). Replaces the previous hand-written Quickshell bar plus hyprlock/hypridle/hyprpaper/fuzzel/cliphist, which are being developed further on the `quickshell` branch instead.
+- **Shell:** Noctalia (a C++ desktop shell, `noctalia` package from the official `[extra]` repo, in `base/packages`) — one shell providing the bar, launcher, control center, lock screen, idle handling, wallpaper, notifications, clipboard history and OSDs. Launched via `hl.exec_cmd("noctalia")` in `hyprland.lua`'s `hyprland.start` hook; controlled at runtime through `noctalia msg <command>` IPC (see keybinds in `keybinds.lua`, loaded via `require("keybinds")`). Replaces the previous hand-written Quickshell bar plus hyprlock/hypridle/hyprpaper/fuzzel/cliphist, which are being developed further on the `quickshell` branch instead. The Hyprland-side Noctalia color-template integration (`require("noctalia").apply_theme()`) has been removed — theming goes through Noctalia's own settings UI now.
 - **Display Manager:** greetd + tuigreet (unchanged — Noctalia's own greeter was not adopted)
 - **Terminal:** kitty
 - **Shell:** zsh + Oh My Zsh + starship prompt
