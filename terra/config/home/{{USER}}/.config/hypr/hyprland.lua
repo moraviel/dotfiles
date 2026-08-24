@@ -1,4 +1,4 @@
--- Hyprland config — D7JW8FS (personal desktop, no dedicated GPU, 2 fixed monitors).
+-- Hyprland config — terra (personal desktop, AMD Radeon RX 7600, 2 fixed monitors).
 -- Connector names below are placeholders — run `hyprctl monitors` once and
 -- adjust "DP-1"/"DP-2" to match your actual setup.
 

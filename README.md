@@ -7,10 +7,10 @@ matching machine. The host layer is picked up automatically from
 
 ## Machines
 
-| Hostname       | Role                | GPU                | Monitors                          |
-|----------------|---------------------|--------------------|------------------------------------|
-| `LXKA-4JSYDX3` | Work laptop         | NVIDIA             | 1 built-in + 2-3 external (shared desk, varies by office) |
-| `D7JW8FS`      | Personal desktop    | Radeon RX7600 Dual | 2 fixed |
+| Hostname       | Role                | GPU                    | Monitors                          |
+|----------------|---------------------|------------------------|------------------------------------|
+| `LXKA-4JSYDX3` | Work laptop         | NVIDIA                 | 1 built-in + 2-3 external (shared desk, varies by office) |
+| `terra`      | Personal desktop    | AMD Radeon RX7600 Dual | 2 fixed |
 
 Both machines should be installed with full-disk encryption (LUKS2), same as
 the Ubuntu installs they're replacing — see
@@ -50,7 +50,7 @@ dotfiles/
 │   ├── aur-packages
 │   ├── config/            # overlaid on top of base/config, same file wins
 │   └── hooks/
-└── D7JW8FS/
+└── terra/
     ├── packages
     ├── aur-packages
     ├── config/
@@ -135,7 +135,7 @@ to a group, etc.
 ## Adding to this repo
 
 Where something goes depends on whether it applies to every machine (`base/`)
-or only one (`<hostname>/`, e.g. `LXKA-4JSYDX3/` or `D7JW8FS/`). Host layers
+or only one (`<hostname>/`, e.g. `LXKA-4JSYDX3/` or `terra/`). Host layers
 fully replace base files at the same path — there's no merging — so only put
 something in a host layer if it's genuinely machine-specific.
 
@@ -214,7 +214,7 @@ individually to test just that piece rather than the full `make`, and use
     `hyprland.lua`), not inline in `hyprland.lua` itself — same file for base
     and both hosts. Workspaces 1-9 are bound (`$mod+1..9` focus,
     `$mod+SHIFT+1..9` move), plus a named `gaming` workspace
-    (`$mod+SHIFT+G`) used on `D7JW8FS` (see below). Screenshot binding
+    (`$mod+SHIFT+G`) used on `terra` (see below). Screenshot binding
     (`Print`) shells out to `~/.local/bin/screenshot`, which isn't part of
     this repo yet — add it under `base/config/home/{{USER}}/.local/bin/` (and
     remember to make it executable, see the `~/.local/bin/` note above) or
@@ -284,7 +284,7 @@ individually to test just that piece rather than the full `make`, and use
   (`flatpak remote-add --if-not-exists flathub ...`) and installs
   `io.github.Qalculate` system-wide; it's bound to the `XF86Calculator` key
   in `keybinds.lua`.
-- `D7JW8FS` has a dedicated `gaming` Hyprland workspace: a
+- `terra` has a dedicated `gaming` Hyprland workspace: a
   `hl.workspace_rule` sets it to `monocle` layout, and window rules tag
   `steam_app.*` windows as `content = "game"` and route anything matching
   `class = "game"` to that workspace with idle-inhibit and fullscreen. Switch

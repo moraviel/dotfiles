@@ -35,7 +35,7 @@ base/               # Applied to every machine
 
 <hostname>/         # Machine-specific overlay, same structure
   LXKA-4JSYDX3/     # Work laptop (NVIDIA)
-  D7JW8FS/          # Personal desktop (AMD RADEON)
+  terra/          # Personal desktop (AMD RADEON)
 ```
 
 Host-specific config files **fully replace** (not merge with) base files at the same path.

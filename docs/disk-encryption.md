@@ -45,7 +45,7 @@ arch-chroot /mnt
 ```
 
 From here on you're inside the chroot. Set locale/timezone/hostname as usual
-(`/etc/hostname` must be `LXKA-4JSYDX3` or `D7JW8FS` to match this repo's
+(`/etc/hostname` must be `LXKA-4JSYDX3` or `terra` to match this repo's
 layers), then continue below.
 
 ## 4. mkinitcpio: add the encrypt hook
