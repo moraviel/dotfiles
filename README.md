@@ -36,6 +36,7 @@ dotfiles/
 ├── scripts/
 │   ├── deploy-config.sh   # implements `make cfg`
 │   ├── rollback-config.sh # implements `make rollback`
+│   ├── deploy-scripts.sh  # implements `make scripts`
 │   └── run-hooks.sh       # implements `make hooks`
 ├── wallpapers/            # vendored copy of github.com/teowelton/Wallpapers
 │                          # (whole repo, ~677MB — copied to ~/.wallpapers/
@@ -44,16 +45,19 @@ dotfiles/
 │   ├── packages           # pacman packages, common to all machines
 │   ├── aur-packages       # AUR packages (via paru), common to all machines
 │   ├── config/            # mirrors /, deployed first
+│   ├── scripts/           # flat files, deployed to ~/.local/bin (chmod +x)
 │   └── hooks/             # <package-name>.sh, run after that package installs
 ├── LXKA-4JSYDX3/
 │   ├── packages
 │   ├── aur-packages
 │   ├── config/            # overlaid on top of base/config, same file wins
+│   ├── scripts/
 │   └── hooks/
 └── terra/
     ├── packages
     ├── aur-packages
     ├── config/
+    ├── scripts/
     └── hooks/
 ```
 
@@ -62,7 +66,7 @@ dotfiles/
 ```sh
 git clone <this-repo> ~/dotfiles
 cd ~/dotfiles
-make            # deps -> pkgs -> aur -> cfg -> hooks
+make            # deps -> pkgs -> aur -> cfg -> scripts -> hooks
 ```
 
 Or run steps individually:
@@ -72,6 +76,7 @@ make deps    # git submodules + git-lfs (install + pull wallpapers) + install pa
 make pkgs    # pacman -S base/packages + <hostname>/packages (deduped)
 make aur     # paru -S base/aur-packages + <hostname>/aur-packages (deduped)
 make cfg     # deploy config/ -> / for base, then for the current hostname
+make scripts # deploy scripts/ -> ~/.local/bin for base, then for the current hostname
 make hooks   # run base/hooks/<pkg>.sh + <hostname>/hooks/<pkg>.sh per package
 ```
 
@@ -123,6 +128,15 @@ Snapshots accumulate under `~/.local/share/dotfiles-backups/` and are never
 deleted automatically — prune old ones by hand once you're confident you
 won't need them.
 
+### Scripts deployment (`make scripts`)
+
+Every file directly under `base/scripts/` (and then `<hostname>/scripts/`) is
+copied into `~/.local/bin/` and `chmod +x`'d, so anything dropped there is
+immediately runnable — `~/.local/bin` is already on `$PATH` via `.zshrc`.
+Subdirectories aren't walked; a `<hostname>/scripts/<name>` overwrites a
+`base/scripts/<name>` of the same name, same as config files. `.gitkeep` is
+never copied.
+
 ### Hooks (`make hooks`)
 
 For every package name in `base/packages`, `base/aur-packages`,
@@ -171,15 +185,12 @@ something in a host layer if it's genuinely machine-specific.
     are risky to script blindly, print instructions instead of editing them
     automatically — see `plymouth.sh`/`nvidia-open.sh`/`gnome-keyring.sh` for
     the pattern.
-- **New script for `~/.local/bin/`** — same mechanism as any other dotfile:
-  place it at `base/config/home/{{USER}}/.local/bin/<name>` (or under the
-  host layer if it's machine-specific); `~/.local/bin` is already on `$PATH`
-  via `.zshrc`. **Caveat:** `deploy-config.sh` writes deployed files through
-  `sed ... > target` (to substitute `{{USER}}`), not `cp`, so the execute bit
-  is never preserved or set — a script deployed this way lands as `644`.
-  Either `chmod +x` it manually after `make cfg`, or add a step to
-  `base/hooks/always.sh` (or a dedicated hook) that chmods it, similar to how
-  `always.sh` sets up `~/.local/bin/jetbrains-toolbox`.
+- **New script for `~/.local/bin/`** — place it at `base/scripts/<name>` (or
+  `<hostname>/scripts/<name>` if machine-specific); `make scripts` copies it
+  to `~/.local/bin/<name>` and sets the execute bit for you. Subdirectories
+  aren't supported, and `{{USER}}` substitution doesn't apply here (that's a
+  `config/` thing) — write the script to work for whichever user runs it via
+  `$USER`/`$HOME` instead.
 - **Host-specific override of a base file** — copy the *entire* file (not a
   diff/patch) to the same relative path under `<hostname>/config/`; it fully
   replaces the base version for that host during `make cfg`.
@@ -216,9 +227,8 @@ individually to test just that piece rather than the full `make`, and use
     `$mod+SHIFT+1..9` move), plus a named `gaming` workspace
     (`$mod+SHIFT+G`) used on `terra` (see below). Screenshot binding
     (`Print`) shells out to `~/.local/bin/screenshot`, which isn't part of
-    this repo yet — add it under `base/config/home/{{USER}}/.local/bin/` (and
-    remember to make it executable, see the `~/.local/bin/` note above) or
-    the binding will do nothing until then.
+    this repo yet — add it as `base/scripts/screenshot` (see the "Scripts
+    deployment" note above) or the binding will do nothing until then.
   - The Hyprland-side Noctalia color-template integration
     (`require("noctalia").apply_theme()`) has been removed from both hosts'
     `hyprland.lua` — theming is Noctalia's own settings UI now, not a

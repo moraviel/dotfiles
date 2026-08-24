@@ -5,11 +5,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Common Commands
 
 ```bash
-make all           # Full install: deps → pkgs → aur → cfg → hooks
+make all           # Full install: deps → pkgs → aur → cfg → scripts → hooks
 make deps          # Install paru (AUR helper) if missing
 make pkgs          # Install pacman packages (base + host-specific, deduped)
 make aur           # Install AUR packages via paru
 make cfg           # Deploy config files with {{USER}} substitution + backups
+make scripts       # Deploy base/scripts + host scripts into ~/.local/bin
 make hooks         # Run post-install hook scripts
 make rollback      # Undo most recent `make cfg`
 make rollback-list # List available backup snapshots
@@ -29,6 +30,7 @@ base/               # Applied to every machine
     etc/            # → /etc/ (sudo)
     usr/            # → /usr/ (sudo)
     home/{{USER}}/  # → $HOME/
+  scripts/          # Flat files deployed to ~/.local/bin, made executable
   hooks/            # Post-install scripts
     <pkg>.sh        # Per-package hook (run if that pkg is installed)
     always.sh       # Always runs, unconditionally
@@ -47,6 +49,13 @@ Host-specific config files **fully replace** (not merge with) base files at the 
 - `.clean` marker files cause the target directory to be wiped before deploying new content
 - `.gitkeep` and `.clean` files are never copied to targets
 - Files under `etc/` and `usr/` are written with `sudo`
+
+### Scripts Deployment (`scripts/deploy-scripts.sh`)
+
+- Copies every file directly under `base/scripts/` and then `<hostname>/scripts/` into `~/.local/bin`, `chmod +x`-ing each one
+- Flat only — subdirectories aren't walked
+- A host script with the same filename as a base script overwrites it (deployed second)
+- `.gitkeep` is never copied
 
 ### Hooks (`scripts/run-hooks.sh`)
 
@@ -71,8 +80,9 @@ Hook responsibilities include: enabling systemd services, adding users to groups
 
 1. **New package:** Add to `base/packages` or `<hostname>/packages`
 2. **New config file:** Place at the corresponding path under `base/config/` or `<hostname>/config/`
-3. **Post-install setup:** Add `base/hooks/<pkgname>.sh`; make it idempotent (check before acting)
-4. **Host-specific override:** Place config at the same relative path under `<hostname>/config/`
+3. **New personal script:** Place at `base/scripts/<name>` or `<hostname>/scripts/<name>`; it lands in `~/.local/bin/<name>`, executable
+4. **Post-install setup:** Add `base/hooks/<pkgname>.sh`; make it idempotent (check before acting)
+5. **Host-specific override:** Place config at the same relative path under `<hostname>/config/`
 
 ## Key Notes
 

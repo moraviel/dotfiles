@@ -1,8 +1,8 @@
 HOST := $(shell cat /etc/hostname)
 
-.PHONY: all deps pkgs aur cfg hooks rollback rollback-list
+.PHONY: all deps pkgs aur cfg scripts hooks rollback rollback-list
 
-all: deps pkgs aur cfg hooks
+all: deps pkgs aur cfg scripts hooks
 
 deps:
 	@echo "--- Initializing submodules ---"
@@ -43,6 +43,10 @@ aur:
 cfg:
 	@echo "--- Deploying config for $(HOST) ---"
 	@HOST=$(HOST) bash scripts/deploy-config.sh
+
+scripts:
+	@echo "--- Deploying scripts for $(HOST) ---"
+	@HOST=$(HOST) bash scripts/deploy-scripts.sh
 
 hooks:
 	@echo "--- Running hooks for $(HOST) ---"
