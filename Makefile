@@ -1,6 +1,6 @@
 HOST := $(shell cat /etc/hostname)
 
-.PHONY: all deps pkgs aur cfg scripts hooks rollback rollback-list
+.PHONY: all deps pkgs aur cfg scripts hooks rollback rollback-list sortpacs
 
 all: deps pkgs aur cfg scripts hooks
 
@@ -57,3 +57,6 @@ rollback:
 
 rollback-list:
 	@bash scripts/rollback-config.sh list
+
+soearpacs: #sort + clear(delete duplicates) packages
+	@sort --unique --output=base/packages base/packages
