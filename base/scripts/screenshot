@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+SCREENSHOT_DIR="$HOME/Pictures/Screenshots"
+TIMESTAMP="$(date '+%Y-%m-%d_%H-%M-%S')"
+FILE="$SCREENSHOT_DIR/$TIMESTAMP.png"
+
+mkdir -p "$SCREENSHOT_DIR"
+
+grim -g "$(slurp)" - | tee "$FILE" | wl-copy --type image/png
