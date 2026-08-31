@@ -9,22 +9,21 @@ cava                                    # terminal audio visualizer
 chromium                                # browser
 code                                    # Visual Studio Code
 cowsay                                  # ascii art
-curl                                    # http client
-wget                                    # http client
 cryptsetup                              # filesystem encryption
+curl                                    # http client
 discord                                 # native Discord client
-docker                                  # container runtime
 docker-compose                          # container orchestration
-ffmpeg                                  # video/audio encoding
+docker                                  # container runtime
 eza                                     # ls alternative
 fastfetch                               # system information
 fd                                      # find alternative
+ffmpeg                                  # video/audio encoding
 firefox                                 # browser
 flatpak                                 # sandboxed package manager
 fzf                                     # fuzzy finder
 gcc                                     # C compiler
-git                                     # version control system
 git-lfs                                 # git large file storage
+git                                     # version control system
 gnome-keyring                           # keyring manager
 go                                      # programming language
 greetd                                  # login manager
@@ -44,8 +43,8 @@ npm                                     # node package manager
 nvm                                     # node version manager
 obsidian                                # markdown note-taking app
 openssh                                 # ssh client
-pipewire                                # audio/video
 pipewire-alsa                           # audio/video
+pipewire                                # audio/video
 pipewire-pulse                          # audio/video
 plymouth                                # boot splash screen
 qt6-multimedia                          # multimedia library
@@ -65,6 +64,7 @@ vim                                     # vim
 viu                                     # terminal image viewer
 wev                                     # A tool for debugging wayland events on a Wayland window, analagous to the X11 tool xev.
 wf-recorder                             # screen recording utility
+wget                                    # http client
 wireplumber                             # audio/video | session manager for pipewire
 wl-clipboard                            # clipboard manager for Wayland
 xdg-desktop-portal-hyprland             # Wayland session manager
