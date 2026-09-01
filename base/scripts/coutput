@@ -1,0 +1,7 @@
+#!/bin/bash
+
+set -euo pipefail
+
+echo "$@"
+
+bash -c "$* > >(wl-copy)"
