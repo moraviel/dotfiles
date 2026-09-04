@@ -4,6 +4,7 @@ blueman                                 # bluetooth manager
 bluez                                   # bluetooth
 bluez-utils                             # bluetooth utils
 bolt                                    # thunderbolt manager
+brightnessctl                           # brightness control
 btop                                    # top alternative
 cava                                    # terminal audio visualizer
 chromium                                # browser
@@ -37,7 +38,10 @@ libsecret                               # keyring manager
 man-db                                  # manual page database
 man-pages                               # manual pages
 neovim                                  # vim alternative
+network-manager-applet                  # network manager GUI
 networkmanager                          # network manager
+networkmanager-openvpn                  # openvpn client
+networkmanager-vpn-plugin-openvpn       # openvpn plugin
 noctalia                                # Desktop Shell
 npm                                     # node package manager
 nvm                                     # node version manager
@@ -46,6 +50,7 @@ openssh                                 # ssh client
 pipewire-alsa                           # audio/video
 pipewire                                # audio/video
 pipewire-pulse                          # audio/video
+playerctl                               # MPRIS cli
 plymouth                                # boot splash screen
 qt6-multimedia                          # multimedia library
 ripgrep                                 # grep alternative
@@ -67,6 +72,7 @@ wf-recorder                             # screen recording utility
 wget                                    # http client
 wireplumber                             # audio/video | session manager for pipewire
 wl-clipboard                            # clipboard manager for Wayland
+wpctl                                   # WirePlumber command line tool
 xdg-desktop-portal-hyprland             # Wayland session manager
 xdg-user-dirs                           # user directories
 xorg-xwayland                           # Wayland compositor
