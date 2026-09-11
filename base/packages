@@ -1,81 +1,81 @@
-bat                                     # cat alternative
-bitwarden                               # password manager
-blueman                                 # bluetooth manager
-bluez                                   # bluetooth
-bluez-utils                             # bluetooth utils
-bolt                                    # thunderbolt manager
-brightnessctl                           # brightness control
-btop                                    # top alternative
-cava                                    # terminal audio visualizer
-chromium                                # browser
-code                                    # Visual Studio Code
-cowsay                                  # ascii art
-cryptsetup                              # filesystem encryption
-curl                                    # http client
-discord                                 # native Discord client
-docker-compose                          # container orchestration
-docker                                  # container runtime
-eza                                     # ls alternative
-fastfetch                               # system information
-fd                                      # find alternative
-ffmpeg                                  # video/audio encoding
-firefox                                 # browser
-flatpak                                 # sandboxed package manager
-fzf                                     # fuzzy finder
-gcc                                     # C compiler
-git-lfs                                 # git large file storage
-git                                     # version control system
-gnome-keyring                           # keyring manager
-go                                      # programming language
-greetd                                  # login manager
-greetd-tuigreet                         # login manager
-grim                                    # screenshot utility
-hyprland                                # wayland compositor | window manager
-jq                                      # json processor
-kitty                                   # terminal emulator
-kubectl                                 # kubernetes command line tool
-libsecret                               # keyring manager
-man-db                                  # manual page database
-man-pages                               # manual pages
-neovim                                  # vim alternative
-network-manager-applet                  # network manager GUI
-networkmanager                          # network manager
-networkmanager-openvpn                  # openvpn client
-networkmanager-vpn-plugin-openvpn       # openvpn plugin
-noctalia                                # Desktop Shell
-npm                                     # node package manager
-nvm                                     # node version manager
-obsidian                                # markdown note-taking app
-openssh                                 # ssh client
-pipewire-alsa                           # audio/video
-pipewire                                # audio/video
-pipewire-pulse                          # audio/video
-playerctl                               # MPRIS cli
-plymouth                                # boot splash screen
-qt6-multimedia                          # multimedia library
-ripgrep                                 # grep alternative
-slurp                                   # clipboard manager
-starship                                # shell prompt
-telegram-desktop                        # telegram client
-thunar                                  # file manager
-tk                                      # GUI toolkit
-tldr                                    # man page alternative
-tree                                    # file tree alternative
-ttf-jetbrains-mono-nerd                 # JetBrains Mono font
-unp                                     # archive extractor
-unzip                                   # zip archive extractor
-upower                                  # power management
-vim                                     # vim
-viu                                     # terminal image viewer
-wev                                     # A tool for debugging wayland events on a Wayland window, analagous to the X11 tool xev.
-wf-recorder                             # screen recording utility
-wget                                    # http client
-wireplumber                             # audio/video | session manager for pipewire
-wl-clipboard                            # clipboard manager for Wayland
-wpctl                                   # WirePlumber command line tool
-xdg-desktop-portal-hyprland             # Wayland session manager
-xdg-user-dirs                           # user directories
-xorg-xwayland                           # Wayland compositor
-yq                                      # json & yaml processor and wrapper
-zed                                     # terminal text editor
-zsh                                     # shell
+bat
+bitwarden
+blueman
+bluez
+bluez-utils
+bolt
+brightnessctl
+btop
+cava
+chromium
+code
+cowsay
+cryptsetup
+curl
+discord
+docker-compose
+docker
+eza
+fastfetch
+fd
+ffmpeg
+firefox
+flatpak
+fzf
+gcc
+git-lfs
+git
+gnome-keyring
+go
+greetd
+greetd-tuigreet
+grim
+hyprland
+jq
+kitty
+kubectl
+libsecret
+man-db
+man-pages
+neovim
+network-manager-applet
+networkmanager
+networkmanager-openvpn
+networkmanager-vpn-plugin-openvpn
+noctalia
+npm
+nvm
+obsidian
+openssh
+pipewire-alsa
+pipewire
+pipewire-pulse
+playerctl
+plymouth
+qt6-multimedia
+ripgrep
+slurp
+starship
+telegram-desktop
+thunar
+tk
+tldr
+tree
+ttf-jetbrains-mono-nerd
+unp
+unzip
+upower
+vim
+viu
+wev
+wf-recorder
+wget
+wireplumber
+wl-clipboard
+wpctl
+xdg-desktop-portal-hyprland
+xdg-user-dirs
+xorg-xwayland
+yq
+zed
+zsh
