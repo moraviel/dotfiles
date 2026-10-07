@@ -1,5 +1,5 @@
 -- Hyprland config — base layer.
--- Host layers (LXKA-4JSYDX3, terra) ship their own complete hyprland.lua
+-- Host layers (UXL-4JSYDX3, terra) ship their own complete hyprland.lua
 -- with an `hl.monitor({...})` layout tuned for that machine; everything else
 -- below is shared and duplicated there intentionally, since cfg deploys base
 -- then overwrites with the host file rather than merging them.

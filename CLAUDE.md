@@ -16,7 +16,7 @@ make rollback      # Undo most recent `make cfg`
 make rollback-list # List available backup snapshots
 ```
 
-The `make cfg` target reads `$HOST` from `/etc/hostname` to determine which host-specific layer to apply on top of base.
+The `make cfg` target obtains `$HOST` with `hostname` to determine which host-specific layer to apply on top of base.
 
 ## Architecture
 
@@ -36,7 +36,7 @@ base/               # Applied to every machine
     always.sh       # Always runs, unconditionally
 
 <hostname>/         # Machine-specific overlay, same structure
-  LXKA-4JSYDX3/     # Work laptop (NVIDIA)
+  UXL-4JSYDX3/      # Work laptop (NVIDIA)
   terra/          # Personal desktop (AMD RADEON)
 ```
 
@@ -87,7 +87,7 @@ Hook responsibilities include: enabling systemd services, adding users to groups
 ## Key Notes
 
 - Monitor layout must be configured manually per machine by running `hyprctl monitors` and editing the host-specific Hyprland config
-- NVIDIA setup (LXKA-4JSYDX3): hooks print bootloader/mkinitcpio instructions rather than automating them
+- NVIDIA setup (UXL-4JSYDX3): hooks print bootloader/mkinitcpio instructions rather than automating them
 - Plymouth/mkinitcpio hooks print rebuild instructions; user must run `mkinitcpio -P` manually
 - Rollback only undoes `make cfg` (config files); it does not uninstall packages or undo hooks
 - SSH/GPG/Git identity are not managed by this repo — set up manually per machine

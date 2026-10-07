@@ -9,7 +9,7 @@ matching machine. The host layer is picked up automatically from
 
 | Hostname       | Role                | GPU                    | Monitors                          |
 |----------------|---------------------|------------------------|------------------------------------|
-| `LXKA-4JSYDX3` | Work laptop         | NVIDIA                 | 1 built-in + 2-3 external (shared desk, varies by office) |
+| `UXL-4JSYDX3` | Work laptop         | NVIDIA                 | 1 built-in + 2-3 external (shared desk, varies by office) |
 | `terra`      | Personal desktop    | AMD Radeon RX7600 Dual | 2 fixed |
 
 Both machines should be installed with full-disk encryption (LUKS2), same as
@@ -47,7 +47,7 @@ dotfiles/
 │   ├── config/            # mirrors /, deployed first
 │   ├── scripts/           # flat files, deployed to ~/.local/bin (chmod +x)
 │   └── hooks/             # <package-name>.sh, run after that package installs
-├── LXKA-4JSYDX3/
+├── UXL-4JSYDX3/
 │   ├── packages
 │   ├── aur-packages
 │   ├── config/            # overlaid on top of base/config, same file wins
@@ -80,7 +80,7 @@ make scripts # deploy scripts/ -> ~/.local/bin for base, then for the current ho
 make hooks   # run base/hooks/<pkg>.sh + <hostname>/hooks/<pkg>.sh per package
 ```
 
-`$HOST` is read from `/etc/hostname` automatically; override it (e.g. for a
+`$HOST` is obtained with `hostname` automatically; override it (e.g. for a
 dry run against a different host layer) with `make cfg HOST=OTHER-HOST`.
 
 ### Config deployment rules (`make cfg`)
@@ -149,7 +149,7 @@ to a group, etc.
 ## Adding to this repo
 
 Where something goes depends on whether it applies to every machine (`base/`)
-or only one (`<hostname>/`, e.g. `LXKA-4JSYDX3/` or `terra/`). Host layers
+or only one (`<hostname>/`, e.g. `UXL-4JSYDX3/` or `terra/`). Host layers
 fully replace base files at the same path — there's no merging — so only put
 something in a host layer if it's genuinely machine-specific.
 

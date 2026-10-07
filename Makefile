@@ -1,4 +1,5 @@
-HOST := $(shell cat /etc/hostname)
+# `?=` keeps HOST=... available for testing or targeting another host layer.
+HOST ?= $(shell hostname)
 
 .PHONY: all deps pkgs aur cfg scripts hooks rollback rollback-list sortpacs
 

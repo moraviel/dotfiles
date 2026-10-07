@@ -45,7 +45,7 @@ arch-chroot /mnt
 ```
 
 From here on you're inside the chroot. Set locale/timezone/hostname as usual
-(`/etc/hostname` must be `LXKA-4JSYDX3` or `terra` to match this repo's
+(`/etc/hostname` must be `UXL-4JSYDX3` or `terra` to match this repo's
 layers), then continue below.
 
 ## 4. mkinitcpio: add the encrypt hook
@@ -76,7 +76,7 @@ HOOKS=(base systemd plymouth autodetect microcode modconf kms keyboard sd-vconso
 HOOKS=(base udev plymouth autodetect modconf kms keyboard keymap consolefont block encrypt filesystems fsck)
 ```
 
-`base/hooks/plymouth.sh` and `LXKA-4JSYDX3/hooks/nvidia-open.sh` in this repo
+`base/hooks/plymouth.sh` and `UXL-4JSYDX3/hooks/nvidia-open.sh` in this repo
 only *append* to whatever `HOOKS=(...)`/`MODULES=(...)` already exist (the
 plymouth hook inserts right after whichever of `systemd`/`udev` it finds) —
 neither one adds `sd-encrypt`/`encrypt` for you, so get that part right by

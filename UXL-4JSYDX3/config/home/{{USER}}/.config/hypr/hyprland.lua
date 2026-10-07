@@ -1,4 +1,4 @@
--- Hyprland config — LXKA-4JSYDX3 (work laptop, NVIDIA, shared desk).
+-- Hyprland config — UXL-4JSYDX3 (work laptop, NVIDIA, shared desk).
 -- Monitor layout is deliberately loose: this laptop docks at different desks
 -- with 2-3 external monitors depending on the office.
 -- Use Monique for setting Monitors up.
@@ -7,7 +7,7 @@ local mod = "SUPER"
 local terminal = "kitty"
 local noctalia = "noctalia msg "
 
--- NVIDIA + Wayland — see LXKA-4JSYDX3/hooks/nvidia-open.sh for the matching
+-- NVIDIA + Wayland — see UXL-4JSYDX3/hooks/nvidia-open.sh for the matching
 -- mkinitcpio/kernel-cmdline side of this.
 hl.env("LIBVA_DRIVER_NAME", "nvidia")
 hl.env("__GLX_VENDOR_LIBRARY_NAME", "nvidia")

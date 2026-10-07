@@ -7,7 +7,7 @@
 # `.gitkeep` is never copied.
 set -euo pipefail
 
-HOST="${HOST:-$(cat /etc/hostname)}"
+HOST="${HOST:-$(hostname)}"
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 BIN_DIR="${BIN_DIR:-$HOME/.local/bin}"
 

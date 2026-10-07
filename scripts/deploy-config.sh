@@ -14,7 +14,7 @@
 # can be undone with `make rollback` / scripts/rollback-config.sh.
 set -euo pipefail
 
-HOST="${HOST:-$(cat /etc/hostname)}"
+HOST="${HOST:-$(hostname)}"
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 BACKUP_ROOT="${BACKUP_ROOT:-$HOME/.local/share/dotfiles-backups}"
 SNAPSHOT_DIR="$BACKUP_ROOT/$(date +%Y%m%dT%H%M%S)"

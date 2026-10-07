@@ -7,7 +7,7 @@
 # specific package (e.g. account full name).
 set -euo pipefail
 
-HOST="${HOST:-$(cat /etc/hostname)}"
+HOST="${HOST:-$(hostname)}"
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 list_files=(
