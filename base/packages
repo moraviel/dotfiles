@@ -86,7 +86,6 @@ wget
 wireguard-tools
 wireplumber
 wl-clipboard
-wpctl
 xdg-desktop-portal-hyprland
 xdg-user-dirs
 xorg-xwayland
