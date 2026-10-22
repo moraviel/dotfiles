@@ -61,3 +61,5 @@ rollback-list:
 
 soearpacs: #sort + clear(delete duplicates) packages
 	@sort --unique --output=base/packages base/packages
+	@sort --unique --output=terra/packages terra/packages
+	@sort --unique --output=UXL-4JSYDX3/packages UXL-4JSYDX3/packages
